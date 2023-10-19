@@ -6,9 +6,11 @@
 //! - 稳定性 —— 稳定
 
 pub trait Bubble {
+    /// 最优时间复杂度 —— O(n<sup>2</sup>)
     fn bubble(&mut self) {}
 
-    /// 最优时间复杂度 —— 若使用 flag 来表示是否需要交换，则为 O(n)
+    /// 效率优化 —— 使用 flag 来表示是否需要交换 <br>
+    /// 最优时间复杂度 —— O(n)
     fn bubble_with_flag(&mut self) {}
 
     /// 最优时间复杂度 —— 若已接近有序，则为 O(n)
@@ -42,4 +44,10 @@ mod test {
         v.bubble();
         assert_eq!(v, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     }
+
+    #[test]
+    fn test_bubble_with_flag() {}
+
+    #[test]
+    fn test_cocktail() {}
 }
