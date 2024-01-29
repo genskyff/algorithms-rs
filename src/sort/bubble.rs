@@ -6,6 +6,8 @@
 //! - 稳定性 —— 稳定
 
 pub trait Bubble {
+    type Item: Ord;
+
     /// 最优时间复杂度 —— O(n<sup>2</sup>)
     fn bubble(&mut self) {}
 
@@ -17,7 +19,9 @@ pub trait Bubble {
     fn cocktail(&mut self) {}
 }
 
-impl Bubble for Vec<i32> {
+impl<T: Ord> Bubble for Vec<T> {
+    type Item = T;
+
     fn bubble(&mut self) {
         let len = self.len();
         for i in 0..len {
