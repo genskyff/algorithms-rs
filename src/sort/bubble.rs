@@ -41,6 +41,7 @@ impl<T: PartialOrd> Bubble for [T] {
 
         while start < end {
             let mut flag = false;
+
             for i in start..end {
                 if self[i] > self[i + 1] {
                     self.swap(i, i + 1);
