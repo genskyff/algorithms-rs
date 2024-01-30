@@ -6,35 +6,62 @@
 //! - 稳定性 —— 稳定
 
 pub trait Bubble {
-    /// 最优时间复杂度 —— O(n<sup>2</sup>)
-    fn bubble(&mut self);
-
     /// 效率优化 —— 使用 flag 来表示是否需要交换 <br>
-    /// 最优时间复杂度 —— O(n)
-    fn bubble_flag(&mut self);
-
     /// 最优时间复杂度 —— 若已接近有序，则为 O(n)
-    fn bubble_cocktail(&mut self);
+    fn bubble_sort(&mut self);
+
+    /// 效率优化 —— 双向进行排序操作 <br>
+    /// 最优时间复杂度 —— 若已接近有序，则为 O(n)
+    fn cocktail_sort(&mut self);
 }
 
 impl<T: PartialOrd> Bubble for [T] {
-    fn bubble(&mut self) {
+    fn bubble_sort(&mut self) {
         let len = self.len();
 
         for i in 0..len {
+            let mut flag = false;
+
             for j in 0..len - i - 1 {
                 if self[j] > self[j + 1] {
                     self.swap(j, j + 1);
+                    flag = true;
                 }
+            }
+
+            if !flag {
+                break;
             }
         }
     }
 
-    fn bubble_flag(&mut self) {
-        todo!()
-    }
+    fn cocktail_sort(&mut self) {
+        let mut start = 0usize;
+        let mut end = self.len() - 1;
 
-    fn bubble_cocktail(&mut self) {
-        todo!()
+        while start < end {
+            let mut flag = false;
+            for i in start..end {
+                if self[i] > self[i + 1] {
+                    self.swap(i, i + 1);
+                    flag = true;
+                }
+            }
+
+            end -= 1;
+
+            for i in (start + 1..=end).rev() {
+                if self[i] < self[i - 1] {
+                    self.swap(i, i - 1);
+                    flag = true;
+                }
+            }
+
+            if !flag {
+                break;
+            }
+
+            start += 1;
+        }
     }
 }
