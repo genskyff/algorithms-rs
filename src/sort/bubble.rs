@@ -74,8 +74,14 @@ mod test {
     }
 
     #[test]
-    fn test_bubble_with_flag() {}
+    fn test_bubble_with_flag_i() {}
 
     #[test]
-    fn test_cocktail() {}
+    fn test_bubble_with_flag_f() {}
+
+    #[test]
+    fn test_cocktail_i() {}
+
+    #[test]
+    fn test_cocktail_f() {}
 }
