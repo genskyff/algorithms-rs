@@ -12,3 +12,5 @@ pub mod quick;
 
 /// # 归并排序
 pub mod merge;
+
+pub(self) mod data;
