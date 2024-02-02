@@ -10,7 +10,7 @@ pub trait Bubble {
     /// 效率优化 —— 使用 flag 来表示是否需要交换
     fn bubble_sort(&mut self);
 
-    /// 效率优化 —— 双向进行排序操作
+    /// 效率优化 —— 双向进行冒泡
     fn cocktail_sort(&mut self);
 }
 
