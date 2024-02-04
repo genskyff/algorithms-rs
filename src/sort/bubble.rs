@@ -18,6 +18,10 @@ impl<T: PartialOrd> Bubble for [T] {
     fn bubble_sort(&mut self) {
         let len = self.len();
 
+        if len < 2 {
+            return;
+        }
+
         for i in 0..len {
             let mut flag = false;
 
@@ -35,8 +39,14 @@ impl<T: PartialOrd> Bubble for [T] {
     }
 
     fn cocktail_sort(&mut self) {
+        let len = self.len();
+
+        if len < 2 {
+            return;
+        }
+
         let mut start = 0usize;
-        let mut end = self.len() - 1;
+        let mut end = len - 1;
 
         while start < end {
             let mut flag = false;
