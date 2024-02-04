@@ -5,13 +5,18 @@
 //! - Space complexity ---- O(1)
 //! - Stability ---- Unstable
 
+use std::fmt::Debug;
+
 pub trait Selection {
     fn selection_sort(&mut self);
 }
 
-impl<T: PartialOrd> Selection for [T] {
+impl<T: Ord + Copy + Debug> Selection for [T] {
     fn selection_sort(&mut self) {
         let len = self.len();
+
+        #[cfg(feature = "debug-print")]
+        println!("\nbefore: {self:?}");
 
         if len < 2 {
             return;
@@ -29,6 +34,9 @@ impl<T: PartialOrd> Selection for [T] {
             if i != min {
                 self.swap(i, min);
             }
+
+            #[cfg(feature = "debug-print")]
+            println!("next: {self:?}");
         }
     }
 }

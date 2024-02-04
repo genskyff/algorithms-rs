@@ -1,16 +1,16 @@
-use algorithms_rs::sort::Selection;
+use algorithms_rs::sort::Insertion;
 mod data;
 use data::*;
 
 #[test]
-fn test_selection_sort() {
+fn test_insertion_sort() {
     let mut vec = Vec::from(DATA);
     let mut arr = DATA;
     let slice = &mut DATA.clone()[..];
 
-    vec.selection_sort();
-    arr.selection_sort();
-    slice.selection_sort();
+    vec.insertion_sort();
+    arr.insertion_sort();
+    slice.insertion_sort();
 
     assert_eq!(vec, DATA_SORTED);
     assert_eq!(arr, DATA_SORTED);

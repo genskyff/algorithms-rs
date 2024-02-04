@@ -5,17 +5,20 @@
 //! - Space complexity ---- O(1)
 //! - Stability ---- Stable
 
+use std::fmt::Debug;
+
 pub trait Bubble {
-    /// Optimization —— Use a flag to indicate whether a swap is needed
     fn bubble_sort(&mut self);
 
-    /// Optimization —— Perform bubble sort in both directions
     fn cocktail_sort(&mut self);
 }
 
-impl<T: PartialOrd> Bubble for [T] {
+impl<T: Ord + Copy + Debug> Bubble for [T] {
     fn bubble_sort(&mut self) {
         let len = self.len();
+
+        #[cfg(feature = "debug-print")]
+        println!("\nbefore: {self:?}");
 
         if len < 2 {
             return;
@@ -31,6 +34,9 @@ impl<T: PartialOrd> Bubble for [T] {
                 }
             }
 
+            #[cfg(feature = "debug-print")]
+            println!("next: {self:?}");
+
             if !flag {
                 break;
             }
@@ -39,6 +45,9 @@ impl<T: PartialOrd> Bubble for [T] {
 
     fn cocktail_sort(&mut self) {
         let len = self.len();
+
+        #[cfg(feature = "debug-print")]
+        println!("\nbefore: {self:?}");
 
         if len < 2 {
             return;
@@ -65,6 +74,9 @@ impl<T: PartialOrd> Bubble for [T] {
                     flag = true;
                 }
             }
+
+            #[cfg(feature = "debug-print")]
+            println!("next: {self:?}");
 
             if !flag {
                 break;
