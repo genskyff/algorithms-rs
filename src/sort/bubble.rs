@@ -1,16 +1,15 @@
-//! - 分类 —— 基于比较的排序
-//! - 数据结构 —— 数组
-//! - 最差时间复杂度 —— O(n<sup>2</sup>)
-//! - 平均时间复杂度 —— O(n<sup>2</sup>)
-//! - 最优时间复杂度 —— O(n)
-//! - 就地性 —— O(1)
-//! - 稳定性 —— 稳定
+//! - Category ------------------—— Comparison-based sorting
+//! - Data structure ------------—— Array
+//! - Worst-case time complexity —— O(n<sup>2</sup>)
+//! - Average time complexity ---—— O(n<sup>2</sup>)
+//! - Space complexity ----------—— O(1)
+//! - Stability -----------------—— Stable
 
 pub trait Bubble {
-    /// 效率优化 —— 使用 flag 来表示是否需要交换
+    /// Optimization —— Use a flag to indicate whether a swap is needed
     fn bubble_sort(&mut self);
 
-    /// 效率优化 —— 双向进行冒泡
+    /// Optimization —— Perform bubble sort in both directions
     fn cocktail_sort(&mut self);
 }
 

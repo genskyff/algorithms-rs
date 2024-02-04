@@ -1,19 +1,43 @@
-/// # 冒泡排序
+/* ------------------------ */
+/* Comparison-based Sorting */
+/* ------------------------ */
+
+/// # Bubble Sort
 pub mod bubble;
 pub use bubble::Bubble;
 
-/// # 选择排序
-pub mod selection;
-pub use selection::Selection;
+/// # Heap Sort
+pub mod heap;
+pub use heap::Heap;
 
-/// # 插入排序
+/// # Insertion Sort
 pub mod insertion;
 pub use insertion::Insertion;
 
-/// # 快速排序
+/// # Merge Sort
+pub mod merge;
+pub use merge::Merge;
+
+/// # Quick Sort
 pub mod quick;
 pub use quick::Quick;
 
-/// # 归并排序
-pub mod merge;
-pub use merge::Merge;
+/// # Selection Sort
+pub mod selection;
+pub use selection::Selection;
+
+/* ---------------------------- */
+/* Non-comparison-based Sorting */
+/* ---------------------------- */
+
+/// # Bucket Sort
+pub mod bucket;
+pub use bucket::Bucket;
+
+/// # Counting Sort
+pub mod counting;
+pub use counting::Counting;
+
+/// # Radix Sort
+pub mod radix;
+pub use radix::Radix;

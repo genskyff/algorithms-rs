@@ -1,5 +1,5 @@
-/// # 排序算法
-pub mod sort;
-
-/// # 搜索算法
+/// # Search Algorithms
 pub mod search;
+
+/// # Sorting Algorithms
+pub mod sort;
