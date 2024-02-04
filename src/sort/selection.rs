@@ -1,9 +1,9 @@
-//! - Category ------------------—— Comparison-based sorting
-//! - Data structure ------------—— Array
-//! - Worst-case time complexity —— O(n<sup>2</sup>)
-//! - Average time complexity ---—— O(n<sup>2</sup>)
-//! - Space complexity ----------—— O(1)
-//! - Stability -----------------—— Unstable
+//! - Category ---- Comparison-based sorting
+//! - Data structure ---- Array
+//! - Worst-case time complexity ---- O(n<sup>2</sup>)
+//! - Average time complexity ---- O(n<sup>2</sup>)
+//! - Space complexity ---- O(1)
+//! - Stability ---- Unstable
 
 pub trait Selection {
     fn selection_sort(&mut self);
