@@ -53,7 +53,7 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
             return;
         }
 
-        let mut start = 0usize;
+        let mut start = 0;
         let mut end = len - 1;
 
         while start < end {
