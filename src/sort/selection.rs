@@ -16,7 +16,7 @@ impl<T: Ord + Copy + Debug> Selection for [T] {
         let len = self.len();
 
         #[cfg(feature = "debug-print")]
-        println!("\nstart: {self:?}");
+        println!("\nbefore:\t{self:?}");
 
         if len < 2 {
             return;
@@ -36,7 +36,7 @@ impl<T: Ord + Copy + Debug> Selection for [T] {
             }
 
             #[cfg(feature = "debug-print")]
-            println!("next:  {self:?}");
+            println!("next:\t{self:?}");
         }
     }
 }

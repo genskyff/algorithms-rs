@@ -20,7 +20,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
         let len = self.len();
 
         #[cfg(feature = "debug-print")]
-        println!("\nstart: {self:?}");
+        println!("\nbefore:\t{self:?}");
 
         if len < 2 {
             return;
@@ -38,7 +38,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
             self[j] = base;
 
             #[cfg(feature = "debug-print")]
-            println!("next:  {self:?}");
+            println!("next: \t{self:?}");
         }
     }
 
@@ -46,7 +46,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
         let len = self.len();
 
         #[cfg(feature = "debug-print")]
-        println!("\nstart: {self:?}");
+        println!("\nbefore:\t{self:?}");
 
         if len < 2 {
             return;
@@ -74,7 +74,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
             self[left] = base;
 
             #[cfg(feature = "debug-print")]
-            println!("next:  {self:?}");
+            println!("next:\t{self:?}");
         }
     }
 
@@ -82,7 +82,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
         let len = self.len();
 
         #[cfg(feature = "debug-print")]
-        println!("\nstart: {self:?}");
+        println!("\nbefore:\t{self:?}");
 
         let mut h = 1;
 
@@ -105,7 +105,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
             h /= 3;
 
             #[cfg(feature = "debug-print")]
-            println!("next:  {self:?}");
+            println!("next:\t{self:?}");
         }
     }
 }
