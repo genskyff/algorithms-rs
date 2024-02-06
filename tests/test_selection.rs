@@ -1,18 +1,19 @@
-use algorithms_rs::sort::Selection;
 mod data;
-use data::*;
+use algorithms_rs::sort::Selection;
+use data::TestData;
+
+#[macro_use]
+extern crate lazy_static;
+
+lazy_static! {
+    static ref DATA: TestData = TestData::new();
+}
 
 #[test]
 fn test_selection_sort() {
-    let mut vec = Vec::from(DATA);
-    let mut arr = DATA;
-    let slice = &mut DATA.clone()[..];
-
-    vec.selection_sort();
-    arr.selection_sort();
-    slice.selection_sort();
-
-    assert_eq!(vec, DATA_SORTED);
-    assert_eq!(arr, DATA_SORTED);
-    assert_eq!(slice, DATA_SORTED);
+    for (i, vec) in DATA.unsorted.iter().enumerate() {
+        let mut sorted_vec = vec.clone();
+        sorted_vec.selection_sort();
+        assert_eq!(sorted_vec, DATA.sorted[i]);
+    }
 }

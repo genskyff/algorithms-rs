@@ -1,33 +1,28 @@
-use algorithms_rs::sort::Bubble;
 mod data;
-use data::*;
+use algorithms_rs::sort::Bubble;
+use data::TestData;
+
+#[macro_use]
+extern crate lazy_static;
+
+lazy_static! {
+    static ref DATA: TestData = TestData::new();
+}
 
 #[test]
 fn test_bubble_sort() {
-    let mut vec = Vec::from(DATA);
-    let mut arr = DATA;
-    let slice = &mut DATA.clone()[..];
-
-    vec.bubble_sort();
-    arr.bubble_sort();
-    slice.bubble_sort();
-
-    assert_eq!(vec, DATA_SORTED);
-    assert_eq!(arr, DATA_SORTED);
-    assert_eq!(slice, DATA_SORTED);
+    for (i, vec) in DATA.unsorted.iter().enumerate() {
+        let mut sorted_vec = vec.clone();
+        sorted_vec.bubble_sort();
+        assert_eq!(sorted_vec, DATA.sorted[i]);
+    }
 }
 
 #[test]
 fn test_cocktail_sort() {
-    let mut vec = Vec::from(DATA);
-    let mut arr = DATA;
-    let slice = &mut DATA.clone()[..];
-
-    vec.cocktail_sort();
-    arr.cocktail_sort();
-    slice.cocktail_sort();
-
-    assert_eq!(vec, DATA_SORTED);
-    assert_eq!(arr, DATA_SORTED);
-    assert_eq!(slice, DATA_SORTED);
+    for (i, vec) in DATA.unsorted.iter().enumerate() {
+        let mut sorted_vec = vec.clone();
+        sorted_vec.cocktail_sort();
+        assert_eq!(sorted_vec, DATA.sorted[i]);
+    }
 }

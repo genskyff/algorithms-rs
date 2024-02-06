@@ -12,4 +12,6 @@ publish = false
 [features]
 debug-print = []
 
-[dependencies]
+[dev-dependencies]
+rand = "0.8"
+lazy_static = "1.4"
