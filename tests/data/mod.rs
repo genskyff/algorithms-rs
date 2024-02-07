@@ -1,8 +1,6 @@
 use rand::seq::SliceRandom;
 use rand::{distributions::Uniform, Rng};
 
-const SIZE: usize = 10;
-
 #[derive(Debug)]
 pub(crate) struct TestData {
     pub unsorted: Vec<Vec<i32>>,
@@ -10,6 +8,8 @@ pub(crate) struct TestData {
 }
 
 impl TestData {
+    const COUNT: usize = 10;
+
     pub(crate) fn new() -> Self {
         let mut rng = rand::thread_rng();
         let value_range = Uniform::new_inclusive(-100, 100);
@@ -27,7 +27,7 @@ impl TestData {
             sorted.push(sorted_vec);
         }
 
-        for _ in 0..SIZE {
+        for _ in 0..Self::COUNT {
             let len = rng.gen_range(3..=20);
             let mut vec = Vec::new();
 
@@ -45,7 +45,7 @@ impl TestData {
 
             if vec.iter().all(|&x| x >= 0) {
                 vec.push(rng.gen_range(-100..0));
-            } else if vec.iter().all(|&x| x <= 0) {
+            } else {
                 vec.push(rng.gen_range(1..=100));
             }
 
