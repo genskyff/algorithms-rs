@@ -101,7 +101,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
         let mut h = 1;
 
         while h < len / 3 {
-            h = 3 * h + 1;
+            h = h * 3 + 1;
         }
 
         while h >= 1 {
@@ -109,14 +109,15 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
                 let base = self[i];
                 let mut j = i;
 
-                while j >= h && self[j - h] > base {
+                while h <= j && base < self[j - h] {
                     self[j] = self[j - h];
                     j -= h;
                 }
+
                 self[j] = base;
             }
 
-            h /= 3;
+            h = (h - 1) / 3;
 
             #[cfg(feature = "debug-print")]
             println!("next:\t{self:?}");

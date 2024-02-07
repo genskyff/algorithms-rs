@@ -8,7 +8,7 @@ pub struct TestData {
 }
 
 impl TestData {
-    const COUNT: usize = 10;
+    const COUNT: usize = 20;
 
     pub fn new() -> Self {
         let mut rng = rand::thread_rng();
