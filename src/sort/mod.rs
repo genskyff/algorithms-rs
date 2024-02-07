@@ -1,6 +1,6 @@
-/* ------------------------ */
-/* Comparison-based Sorting */
-/* ------------------------ */
+/* -------------------------- */
+/*  Comparison-based Sorting  */
+/* -------------------------- */
 
 /// # Bubble Sort
 pub mod bubble;
@@ -26,9 +26,9 @@ pub use quick::Quick;
 pub mod selection;
 pub use selection::Selection;
 
-/* ---------------------------- */
-/* Non-comparison-based Sorting */
-/* ---------------------------- */
+/* ------------------------------ */
+/*  Non-comparison-based Sorting  */
+/* ------------------------------ */
 
 /// # Bucket Sort
 pub mod bucket;

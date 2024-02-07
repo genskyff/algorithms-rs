@@ -1,3 +1,6 @@
+/// # Data Structures
+pub mod ds;
+
 /// # Search Algorithms
 pub mod search;
 
