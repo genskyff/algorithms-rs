@@ -26,6 +26,10 @@ pub use quick::Quick;
 pub mod selection;
 pub use selection::Selection;
 
+/// # Tim Sort
+pub mod tim;
+pub use tim::Tim;
+
 /* ------------------------------ */
 /*  Non-comparison-based Sorting  */
 /* ------------------------------ */

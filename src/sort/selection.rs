@@ -1,9 +1,10 @@
-//! - Category ---- Comparison-based sorting
-//! - Data structure ---- Array
-//! - Worst-case time complexity ---- O(n<sup>2</sup>)
-//! - Average time complexity ---- O(n<sup>2</sup>)
-//! - Space complexity ---- O(1)
-//! - Stability ---- Unstable
+//! - **Category** ---- Comparison-based
+//! - **Data structure** ---- Array
+//! - **Stability** ---- No
+//! - **In-place** ---- Yes
+//! - **Space** complexity ---- O(1)
+//! - **Adaptiveness** ---- No
+//! - **Time** complexity ---- O(n<sup>2</sup>)
 
 use std::fmt::Debug;
 

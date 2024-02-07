@@ -1,17 +1,27 @@
-//! - Category ---- Comparison-based sorting
-//! - Data structure ---- Array
-//! - Worst-case time complexity ---- O(n<sup>2</sup>)
-//! - Average time complexity ---- O(n<sup>2</sup>)
-//! - Space complexity ---- O(1)
-//! - Stability ---- Stable
+//! - **Category** ---- Comparison-based
+//! - **Data structure** ---- Array
+//! - **Stability** ---- Yes
+//! - **In-place** ---- Yes
+//! - **Space** complexity ---- O(1)
+//! - **Adaptiveness** ---- Yes
+//! - **Worst** time complexity ---- O(n<sup>2</sup>)
+//! - **Average** time complexity ---- O(n<sup>2</sup>)
 
 use std::fmt::Debug;
 
 pub trait Insertion {
+    /// - **Best** time complexity ---- O(n)
     fn insertion_sort(&mut self);
 
+    /// - **Best** time complexity ---- O(nlogn)
     fn binary_insertion_sort(&mut self);
 
+    /// - **Stability** ---- No
+    ///
+    /// Time complexity depends on the **gap sequence**
+    /// - **Best** time complexity ---- O(nlogn) ~ O(nlog<sup>2</sup>n)
+    /// - **Worst** time complexity ---- O(nlog<sup>2</sup>n) ~ O(n<sup>2</sup>)
+    /// - **Average** time complexity ---- O(nlog<sup>2</sup>n) ~ O(n<sup>3/2</sup>)
     fn shell_sort(&mut self);
 }
 
@@ -83,6 +93,10 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
 
         #[cfg(feature = "debug-print")]
         println!("\nbefore:\t{self:?}");
+
+        if len < 2 {
+            return;
+        }
 
         let mut h = 1;
 
