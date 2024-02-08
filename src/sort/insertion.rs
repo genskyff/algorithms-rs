@@ -100,7 +100,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
 
         let mut h = 1;
 
-        // Knuth's sequence
+        // Simplified Knuth's sequence
         while h < len / 3 {
             h = h * 3 + 1;
         }
