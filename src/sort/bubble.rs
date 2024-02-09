@@ -70,7 +70,12 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
                 }
             }
 
+            if !flag {
+                break;
+            }
+
             end -= 1;
+            flag = false;
 
             for i in (start + 1..=end).rev() {
                 if self[i] < self[i - 1] {
