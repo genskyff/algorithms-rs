@@ -27,8 +27,9 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
             return;
         }
 
+        let mut flag;
         for i in 0..len {
-            let mut flag = false;
+            flag = false;
 
             for j in 0..len - i - 1 {
                 if self[j] > self[j + 1] {
