@@ -98,27 +98,27 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
             return;
         }
 
-        let mut h = 1;
+        let mut gap = 1;
 
         // Simplified Knuth's sequence
-        while h < len / 3 {
-            h = h * 3 + 1;
+        while gap < len / 3 {
+            gap = gap * 3 + 1;
         }
 
-        while h >= 1 {
-            for i in h..len {
+        while gap >= 1 {
+            for i in gap..len {
                 let base = self[i];
                 let mut j = i;
 
-                while h <= j && base < self[j - h] {
-                    self[j] = self[j - h];
-                    j -= h;
+                while gap <= j && self[j - gap] > base {
+                    self[j] = self[j - gap];
+                    j -= gap;
                 }
 
                 self[j] = base;
             }
 
-            h = (h - 1) / 3;
+            gap = (gap - 1) / 3;
 
             #[cfg(feature = "debug-print")]
             println!("next:\t{self:?}");
