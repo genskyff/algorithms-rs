@@ -16,6 +16,41 @@ pub trait Quick {
 
 impl<T: Ord + Copy + Debug> Quick for [T] {
     fn quick_sort(&mut self) {
-        todo!()
+        let len = self.len();
+
+        #[cfg(feature = "debug-print")]
+        println!("\nbegin:\t{self:?}");
+
+        if len < 2 {
+            return;
+        }
+
+        qsort(self, 0, len - 1);
     }
+}
+
+fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) {
+    if left >= right {
+        return;
+    }
+
+    let pivot = partition(arr, left, right);
+    if pivot > 0 {
+        qsort(arr, left, pivot - 1);
+    }
+    qsort(arr, pivot + 1, right);
+}
+
+fn partition<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) -> usize {
+    let pivot = arr[right];
+    let mut tail = left;
+    for i in left..right {
+        if arr[i] <= pivot {
+            arr.swap(tail, i);
+            tail += 1;
+        }
+    }
+    arr.swap(tail, right);
+
+    tail
 }

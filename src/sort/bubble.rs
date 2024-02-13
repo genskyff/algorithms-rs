@@ -56,13 +56,13 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
             return;
         }
 
-        let mut start = 0;
-        let mut end = len - 1;
+        let mut left = 0;
+        let mut right = len - 1;
 
-        while start < end {
+        while left < right {
             let mut flag = false;
 
-            for i in start..end {
+            for i in left..right {
                 if self[i] > self[i + 1] {
                     self.swap(i, i + 1);
                     flag = true;
@@ -75,10 +75,10 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
                 break;
             }
 
-            end -= 1;
+            right -= 1;
             flag = false;
 
-            for i in (start + 1..=end).rev() {
+            for i in (left + 1..=right).rev() {
                 if self[i] < self[i - 1] {
                     self.swap(i, i - 1);
                     flag = true;
@@ -92,7 +92,7 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
                 break;
             }
 
-            start += 1;
+            left += 1;
         }
     }
 }

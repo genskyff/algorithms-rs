@@ -25,7 +25,8 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
             return;
         }
 
-        entry_recu(self, len);
+        let mut tmp = vec![self[0]; len];
+        msort_recu(self, &mut tmp[..], 0, len - 1);
     }
 
     fn merge_sort_iter(&mut self) {
@@ -38,31 +39,22 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
             return;
         }
 
-        entry_iter(self, len);
+        let mut tmp = vec![self[0]; len];
+        msort_iter(self, &mut tmp[..], len);
     }
 }
 
-fn entry_recu<T: Ord + Copy + Debug>(arr: &mut [T], len: usize) {
-    let mut tmp = vec![arr[0]; len];
-    divide_recu(arr, &mut tmp[..], 0, len - 1);
-}
-
-fn entry_iter<T: Ord + Copy + Debug>(arr: &mut [T], len: usize) {
-    let mut tmp = vec![arr[0]; len];
-    divide_iter(arr, &mut tmp[..], len);
-}
-
-fn divide_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], left: usize, right: usize) {
+fn msort_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], left: usize, right: usize) {
     if left < right {
-        let mid =  left + (right - left) / 2;
+        let mid = left + (right - left) / 2;
 
-        divide_recu(arr, tmp, left, mid);
-        divide_recu(arr, tmp, mid + 1, right);
-        conquer(arr, tmp, left, mid, right);
+        msort_recu(arr, tmp, left, mid);
+        msort_recu(arr, tmp, mid + 1, right);
+        merge(arr, tmp, left, mid, right);
     }
 }
 
-fn divide_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
+fn msort_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
     let (mut left, mut mid, mut right);
 
     let mut i = 1;
@@ -71,14 +63,14 @@ fn divide_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) 
         while left + i < len {
             mid = left + i - 1;
             right = if mid + i < len { mid + i } else { len - 1 };
-            conquer(arr, tmp, left, mid, right);
+            merge(arr, tmp, left, mid, right);
             left = right + 1;
         }
         i *= 2;
     }
 }
 
-fn conquer<T: Ord + Copy + Debug>(
+fn merge<T: Ord + Copy + Debug>(
     arr: &mut [T],
     tmp: &mut [T],
     left: usize,
