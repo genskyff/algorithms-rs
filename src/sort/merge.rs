@@ -44,25 +44,25 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
 
 fn entry_recu<T: Ord + Copy + Debug>(items: &mut [T], len: usize) {
     let mut tmp = vec![items[0]; len];
-    divide_recu(items, 0, len - 1, &mut tmp[..]);
+    divide_recu(items, &mut tmp[..], 0, len - 1);
 }
 
 fn entry_iter<T: Ord + Copy + Debug>(items: &mut [T], len: usize) {
     let mut tmp = vec![items[0]; len];
-    divide_iter(items, len, &mut tmp[..]);
+    divide_iter(items, &mut tmp[..], len);
 }
 
-fn divide_recu<T: Ord + Copy + Debug>(items: &mut [T], left: usize, right: usize, tmp: &mut [T]) {
+fn divide_recu<T: Ord + Copy + Debug>(items: &mut [T], tmp: &mut [T], left: usize, right: usize) {
     if left < right {
-        let mid = (left + right) / 2;
+        let mid =  left + (right - left) / 2;
 
-        divide_recu(items, left, mid, tmp);
-        divide_recu(items, mid + 1, right, tmp);
-        conquer(items, left, mid, right, tmp);
+        divide_recu(items, tmp, left, mid);
+        divide_recu(items, tmp, mid + 1, right);
+        conquer(items, tmp, left, mid, right);
     }
 }
 
-fn divide_iter<T: Ord + Copy + Debug>(items: &mut [T], len: usize, tmp: &mut [T]) {
+fn divide_iter<T: Ord + Copy + Debug>(items: &mut [T], tmp: &mut [T], len: usize) {
     let (mut left, mut mid, mut right);
 
     let mut i = 1;
@@ -71,7 +71,7 @@ fn divide_iter<T: Ord + Copy + Debug>(items: &mut [T], len: usize, tmp: &mut [T]
         while left + i < len {
             mid = left + i - 1;
             right = if mid + i < len { mid + i } else { len - 1 };
-            conquer(items, left, mid, right, tmp);
+            conquer(items, tmp, left, mid, right);
             left = right + 1;
         }
         i *= 2;
@@ -80,38 +80,38 @@ fn divide_iter<T: Ord + Copy + Debug>(items: &mut [T], len: usize, tmp: &mut [T]
 
 fn conquer<T: Ord + Copy + Debug>(
     items: &mut [T],
+    tmp: &mut [T],
     left: usize,
     mid: usize,
     right: usize,
-    tmp: &mut [T],
 ) {
-    let (mut i, mut j, mut k) = (left, mid + 1, 0);
+    let (mut l_pos, mut r_pos, mut t_pos) = (left, mid + 1, left);
 
-    while i <= mid && j <= right {
-        if items[i] < items[j] {
-            tmp[k] = items[i];
-            i += 1;
+    while l_pos <= mid && r_pos <= right {
+        if items[l_pos] < items[r_pos] {
+            tmp[t_pos] = items[l_pos];
+            l_pos += 1;
         } else {
-            tmp[k] = items[j];
-            j += 1;
+            tmp[t_pos] = items[r_pos];
+            r_pos += 1;
         }
-        k += 1;
+        t_pos += 1;
     }
 
-    while i <= mid {
-        tmp[k] = items[i];
-        i += 1;
-        k += 1;
+    while l_pos <= mid {
+        tmp[t_pos] = items[l_pos];
+        l_pos += 1;
+        t_pos += 1;
     }
 
-    while j <= right {
-        tmp[k] = items[j];
-        j += 1;
-        k += 1;
+    while r_pos <= right {
+        tmp[t_pos] = items[r_pos];
+        r_pos += 1;
+        t_pos += 1;
     }
 
-    for i in 0..k {
-        items[left + i] = tmp[i];
+    for i in left..t_pos {
+        items[i] = tmp[i];
     }
 
     #[cfg(feature = "debug-print")]
