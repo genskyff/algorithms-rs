@@ -42,27 +42,27 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
     }
 }
 
-fn entry_recu<T: Ord + Copy + Debug>(items: &mut [T], len: usize) {
-    let mut tmp = vec![items[0]; len];
-    divide_recu(items, &mut tmp[..], 0, len - 1);
+fn entry_recu<T: Ord + Copy + Debug>(arr: &mut [T], len: usize) {
+    let mut tmp = vec![arr[0]; len];
+    divide_recu(arr, &mut tmp[..], 0, len - 1);
 }
 
-fn entry_iter<T: Ord + Copy + Debug>(items: &mut [T], len: usize) {
-    let mut tmp = vec![items[0]; len];
-    divide_iter(items, &mut tmp[..], len);
+fn entry_iter<T: Ord + Copy + Debug>(arr: &mut [T], len: usize) {
+    let mut tmp = vec![arr[0]; len];
+    divide_iter(arr, &mut tmp[..], len);
 }
 
-fn divide_recu<T: Ord + Copy + Debug>(items: &mut [T], tmp: &mut [T], left: usize, right: usize) {
+fn divide_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], left: usize, right: usize) {
     if left < right {
         let mid =  left + (right - left) / 2;
 
-        divide_recu(items, tmp, left, mid);
-        divide_recu(items, tmp, mid + 1, right);
-        conquer(items, tmp, left, mid, right);
+        divide_recu(arr, tmp, left, mid);
+        divide_recu(arr, tmp, mid + 1, right);
+        conquer(arr, tmp, left, mid, right);
     }
 }
 
-fn divide_iter<T: Ord + Copy + Debug>(items: &mut [T], tmp: &mut [T], len: usize) {
+fn divide_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
     let (mut left, mut mid, mut right);
 
     let mut i = 1;
@@ -71,7 +71,7 @@ fn divide_iter<T: Ord + Copy + Debug>(items: &mut [T], tmp: &mut [T], len: usize
         while left + i < len {
             mid = left + i - 1;
             right = if mid + i < len { mid + i } else { len - 1 };
-            conquer(items, tmp, left, mid, right);
+            conquer(arr, tmp, left, mid, right);
             left = right + 1;
         }
         i *= 2;
@@ -79,7 +79,7 @@ fn divide_iter<T: Ord + Copy + Debug>(items: &mut [T], tmp: &mut [T], len: usize
 }
 
 fn conquer<T: Ord + Copy + Debug>(
-    items: &mut [T],
+    arr: &mut [T],
     tmp: &mut [T],
     left: usize,
     mid: usize,
@@ -88,32 +88,32 @@ fn conquer<T: Ord + Copy + Debug>(
     let (mut l_pos, mut r_pos, mut t_pos) = (left, mid + 1, left);
 
     while l_pos <= mid && r_pos <= right {
-        if items[l_pos] < items[r_pos] {
-            tmp[t_pos] = items[l_pos];
+        if arr[l_pos] < arr[r_pos] {
+            tmp[t_pos] = arr[l_pos];
             l_pos += 1;
         } else {
-            tmp[t_pos] = items[r_pos];
+            tmp[t_pos] = arr[r_pos];
             r_pos += 1;
         }
         t_pos += 1;
     }
 
     while l_pos <= mid {
-        tmp[t_pos] = items[l_pos];
+        tmp[t_pos] = arr[l_pos];
         l_pos += 1;
         t_pos += 1;
     }
 
     while r_pos <= right {
-        tmp[t_pos] = items[r_pos];
+        tmp[t_pos] = arr[r_pos];
         r_pos += 1;
         t_pos += 1;
     }
 
     for i in left..t_pos {
-        items[i] = tmp[i];
+        arr[i] = tmp[i];
     }
 
     #[cfg(feature = "debug-print")]
-    println!("next:\t{items:?}");
+    println!("next:\t{arr:?}");
 }
