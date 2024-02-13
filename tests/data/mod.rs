@@ -8,11 +8,13 @@ pub struct TestData {
 }
 
 impl TestData {
-    const COUNT: usize = 20;
+    const COUNT: usize = 100;
+    const LEN: usize = 100;
+    const RANGE: i32 = 1000;
 
     pub fn new() -> Self {
         let mut rng = rand::thread_rng();
-        let value_range = Uniform::new_inclusive(-100, 100);
+        let value_range = Uniform::new_inclusive(-Self::RANGE, Self::RANGE);
 
         let mut unsorted = Vec::new();
         let mut sorted = Vec::new();
@@ -28,7 +30,7 @@ impl TestData {
         }
 
         for _ in 0..Self::COUNT {
-            let len = rng.gen_range(3..=20);
+            let len = rng.gen_range(3..=Self::LEN);
             let mut vec = Vec::new();
 
             let duplicate_value = rng.sample(&value_range);
@@ -44,9 +46,9 @@ impl TestData {
             }
 
             if vec.iter().all(|&x| x >= 0) {
-                vec.push(rng.gen_range(-100..0));
+                vec.push(rng.gen_range(-Self::RANGE..0));
             } else {
-                vec.push(rng.gen_range(1..=100));
+                vec.push(rng.gen_range(1..=Self::RANGE));
             }
 
             vec.shuffle(&mut rng);

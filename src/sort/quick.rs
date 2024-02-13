@@ -29,21 +29,30 @@ impl<T: Ord + Copy + Debug> Quick for [T] {
     }
 }
 
-fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) {
-    if left >= right {
-        return;
-    }
+fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], mut left: usize, mut right: usize) {
+    while left < right {
+        let pivot = partition(arr, left, right);
 
-    let pivot = partition(arr, left, right);
-    if pivot > 0 {
-        qsort(arr, left, pivot - 1);
+        if pivot - left < right - pivot {
+            if pivot >= 1 {
+                qsort(arr, left, pivot - 1);
+                left = pivot + 1;
+            }
+        } else {
+            qsort(arr, pivot + 1, right);
+            right = pivot - 1;
+        }
+
+        #[cfg(feature = "debug-print")]
+        println!("next:\t{arr:?}");
     }
-    qsort(arr, pivot + 1, right);
 }
 
 fn partition<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) -> usize {
+    move_pivot_to_right(arr, left, right);
     let pivot = arr[right];
     let mut tail = left;
+
     for i in left..right {
         if arr[i] <= pivot {
             arr.swap(tail, i);
@@ -53,4 +62,18 @@ fn partition<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) ->
     arr.swap(tail, right);
 
     tail
+}
+
+fn move_pivot_to_right<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) {
+    let mid = left + (right - left) / 2;
+
+    let pivot = if arr[left] > arr[mid] && arr[left] < arr[right] {
+        left
+    } else if arr[mid] > arr[left] && arr[mid] < arr[right] {
+        mid
+    } else {
+        right
+    };
+
+    arr.swap(pivot, right);
 }
