@@ -70,6 +70,8 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
             }
 
             if !flag {
+                #[cfg(feature = "debug-print")]
+                println!("next:\t{self:?}");
                 break;
             }
 
