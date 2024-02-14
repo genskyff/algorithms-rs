@@ -28,19 +28,19 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
         }
 
         for i in 0..len {
-            let mut flag = false;
+            let mut swapped = false;
 
             for j in 0..len - i - 1 {
                 if self[j] > self[j + 1] {
                     self.swap(j, j + 1);
-                    flag = true;
+                    swapped = true;
                 }
             }
 
             #[cfg(feature = "debug-print")]
             println!("next:\t{self:?}");
 
-            if !flag {
+            if !swapped {
                 break;
             }
         }
@@ -60,35 +60,35 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
         let mut right = len - 1;
 
         while left < right {
-            let mut flag = false;
+            let mut swapped = false;
 
             for i in left..right {
                 if self[i] > self[i + 1] {
                     self.swap(i, i + 1);
-                    flag = true;
+                    swapped = true;
                 }
             }
 
-            if !flag {
+            if !swapped {
                 #[cfg(feature = "debug-print")]
                 println!("next:\t{self:?}");
                 break;
             }
 
             right -= 1;
-            flag = false;
+            swapped = false;
 
             for i in (left + 1..=right).rev() {
                 if self[i] < self[i - 1] {
                     self.swap(i, i - 1);
-                    flag = true;
+                    swapped = true;
                 }
             }
 
             #[cfg(feature = "debug-print")]
             println!("next:\t{self:?}");
 
-            if !flag {
+            if !swapped {
                 break;
             }
 
