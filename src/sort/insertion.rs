@@ -64,24 +64,24 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
 
         for i in 1..len {
             let base = self[i];
-            let mut left = 0;
-            let mut right = i;
+            let mut lo = 0;
+            let mut hi = i;
 
-            while left < right {
-                let mid = (left + right) / 2;
+            while lo < hi {
+                let mid = (lo + hi) / 2;
 
                 if self[mid] > base {
-                    right = mid;
+                    hi = mid;
                 } else {
-                    left = mid + 1;
+                    lo = mid + 1;
                 }
             }
 
-            for j in (left..i).rev() {
+            for j in (lo..i).rev() {
                 self[j + 1] = self[j];
             }
 
-            self[left] = base;
+            self[lo] = base;
 
             #[cfg(feature = "debug-print")]
             println!("next:\t{self:?}");

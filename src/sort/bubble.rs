@@ -30,7 +30,7 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
         for i in 0..len {
             let mut swapped = false;
 
-            for j in 0..len - i - 1 {
+            for j in 0..(len - i - 1) {
                 if self[j] > self[j + 1] {
                     self.swap(j, j + 1);
                     swapped = true;
@@ -56,13 +56,13 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
             return;
         }
 
-        let mut left = 0;
-        let mut right = len - 1;
+        let mut lo = 0;
+        let mut hi = len - 1;
 
-        while left < right {
+        while lo < hi {
             let mut swapped = false;
 
-            for i in left..right {
+            for i in lo..hi {
                 if self[i] > self[i + 1] {
                     self.swap(i, i + 1);
                     swapped = true;
@@ -75,10 +75,10 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
                 break;
             }
 
-            right -= 1;
+            hi -= 1;
             swapped = false;
 
-            for i in (left + 1..=right).rev() {
+            for i in ((lo + 1)..=hi).rev() {
                 if self[i] < self[i - 1] {
                     self.swap(i, i - 1);
                     swapped = true;
@@ -92,7 +92,7 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
                 break;
             }
 
-            left += 1;
+            lo += 1;
         }
     }
 }

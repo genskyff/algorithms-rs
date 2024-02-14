@@ -23,10 +23,10 @@ impl<T: Ord + Copy + Debug> Selection for [T] {
             return;
         }
 
-        for i in 0..len - 1 {
+        for i in 0..(len - 1) {
             let mut min = i;
 
-            for j in i + 1..len {
+            for j in (i + 1)..len {
                 if self[j] < self[min] {
                     min = j;
                 }

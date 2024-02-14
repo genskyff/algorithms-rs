@@ -44,27 +44,27 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
     }
 }
 
-fn msort_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], left: usize, right: usize) {
-    if left < right {
-        let mid = left + (right - left) / 2;
+fn msort_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], lo: usize, hi: usize) {
+    if lo < hi {
+        let mid = lo + (hi - lo) / 2;
 
-        msort_recu(arr, tmp, left, mid);
-        msort_recu(arr, tmp, mid + 1, right);
-        merge(arr, tmp, left, mid, right);
+        msort_recu(arr, tmp, lo, mid);
+        msort_recu(arr, tmp, mid + 1, hi);
+        merge(arr, tmp, lo, mid, hi);
     }
 }
 
 fn msort_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
-    let (mut left, mut mid, mut right);
+    let (mut lo, mut mid, mut hi);
 
     let mut i = 1;
     while i < len {
-        left = 0;
-        while left + i < len {
-            mid = left + i - 1;
-            right = if mid + i < len { mid + i } else { len - 1 };
-            merge(arr, tmp, left, mid, right);
-            left = right + 1;
+        lo = 0;
+        while lo + i < len {
+            mid = lo + i - 1;
+            hi = if mid + i < len { mid + i } else { len - 1 };
+            merge(arr, tmp, lo, mid, hi);
+            lo = hi + 1;
         }
         i *= 2;
     }
@@ -73,19 +73,19 @@ fn msort_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
 fn merge<T: Ord + Copy + Debug>(
     arr: &mut [T],
     tmp: &mut [T],
-    left: usize,
+    lo: usize,
     mid: usize,
-    right: usize,
+    hi: usize,
 ) {
-    let (mut l_pos, mut r_pos, mut t_pos) = (left, mid + 1, left);
+    let (mut l_pos, mut h_pos, mut t_pos) = (lo, mid + 1, lo);
 
-    while l_pos <= mid && r_pos <= right {
-        if arr[l_pos] < arr[r_pos] {
+    while l_pos <= mid && h_pos <= hi {
+        if arr[l_pos] < arr[h_pos] {
             tmp[t_pos] = arr[l_pos];
             l_pos += 1;
         } else {
-            tmp[t_pos] = arr[r_pos];
-            r_pos += 1;
+            tmp[t_pos] = arr[h_pos];
+            h_pos += 1;
         }
         t_pos += 1;
     }
@@ -96,13 +96,13 @@ fn merge<T: Ord + Copy + Debug>(
         t_pos += 1;
     }
 
-    while r_pos <= right {
-        tmp[t_pos] = arr[r_pos];
-        r_pos += 1;
+    while h_pos <= hi {
+        tmp[t_pos] = arr[h_pos];
+        h_pos += 1;
         t_pos += 1;
     }
 
-    for i in left..t_pos {
+    for i in lo..t_pos {
         arr[i] = tmp[i];
     }
 
