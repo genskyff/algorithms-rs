@@ -2,7 +2,7 @@
 //! - **Data structure** ---- Array
 //! - **Stability** ---- No
 //! - **In-place** ---- Yes
-//! - **Space** complexity ---- O(n)
+//! - **Space** complexity ---- O(logn) ~ O(n)
 //! - **Adaptiveness** ---- Yes
 //! - **Best** time complexity ---- O(nlogn)
 //! - **Worst** time complexity ---- O(n<sup>2</sup>)
@@ -36,8 +36,8 @@ fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], mut left: usize, mut right: usize
         if pivot - left < right - pivot {
             if pivot >= 1 {
                 qsort(arr, left, pivot - 1);
-                left = pivot + 1;
             }
+            left = pivot + 1;
         } else {
             qsort(arr, pivot + 1, right);
             right = pivot - 1;
@@ -55,7 +55,7 @@ fn partition<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) ->
 
     for i in left..right {
         if arr[i] <= pivot {
-            arr.swap(tail, i);
+            arr.swap(i, tail);
             tail += 1;
         }
     }
@@ -67,13 +67,10 @@ fn partition<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) ->
 fn move_pivot_to_right<T: Ord + Copy + Debug>(arr: &mut [T], left: usize, right: usize) {
     let mid = left + (right - left) / 2;
 
-    let pivot = if arr[left] > arr[mid] && arr[left] < arr[right] {
-        left
-    } else if arr[mid] > arr[left] && arr[mid] < arr[right] {
-        mid
-    } else {
-        right
-    };
-
-    arr.swap(pivot, right);
+    // move the median of left, mid, right to the right (except right is the median)
+    if (arr[left] < arr[mid]) ^ (arr[left] < arr[right]) {
+        arr.swap(left, right);
+    } else if (arr[mid] < arr[left]) ^ (arr[mid] < arr[right]) {
+        arr.swap(mid, right);
+    }
 }
