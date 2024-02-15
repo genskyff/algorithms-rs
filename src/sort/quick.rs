@@ -49,7 +49,7 @@ fn qsort<T: Ord + Debug>(arr: &mut [T], mut low: usize, mut high: usize) {
 }
 
 fn partition<T: Ord + Debug>(arr: &mut [T], low: usize, high: usize) -> usize {
-    move_pivot_to_right(arr, low, high);
+    move_pivot_to_high(arr, low, high);
     let mut cur = low;
 
     for i in low..high {
@@ -63,10 +63,9 @@ fn partition<T: Ord + Debug>(arr: &mut [T], low: usize, high: usize) -> usize {
     cur
 }
 
-fn move_pivot_to_right<T: Ord + Debug>(arr: &mut [T], low: usize, high: usize) {
+fn move_pivot_to_high<T: Ord + Debug>(arr: &mut [T], low: usize, high: usize) {
     let mid = low + (high - low) / 2;
 
-    // move the median of low, mid, high to the high
     let pivot = if (arr[low] < arr[mid]) ^ (arr[low] < arr[high]) {
         low
     } else if (arr[mid] < arr[low]) ^ (arr[mid] < arr[high]) {

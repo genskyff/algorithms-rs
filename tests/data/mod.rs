@@ -16,12 +16,21 @@ impl TestData {
         let mut rng = rand::thread_rng();
         let value_range = Uniform::new_inclusive(-Self::RANGE, Self::RANGE);
 
-        let mut unsorted = Vec::new();
-        let mut sorted = Vec::new();
+        let mut unsorted = vec![];
+        let mut sorted = vec![];
 
         unsorted.push(vec![]);
-        unsorted.push(vec![rng.sample(&value_range)]);
-        unsorted.push(vec![rng.sample(&value_range), rng.sample(&value_range)]);
+        unsorted.push(vec![0]);
+        unsorted.push(vec![5, -2]);
+        unsorted.push(vec![7, 0, -3]);
+
+        let mut v = rng.clone().sample_iter(&value_range).take(20).collect::<Vec<i32>>();
+        v.sort();
+        let mut v2 = v.clone();
+        v2.reverse();
+
+        unsorted.push(v);
+        unsorted.push(v2);
 
         for vec in unsorted.iter_mut() {
             let mut sorted_vec = vec.clone();
@@ -30,8 +39,8 @@ impl TestData {
         }
 
         for _ in 0..Self::COUNT {
-            let len = rng.gen_range(3..=Self::LEN);
-            let mut vec = Vec::new();
+            let mut vec = vec![];
+            let len = rng.gen_range(3..Self::LEN);
 
             let duplicate_value = rng.sample(&value_range);
             vec.push(duplicate_value);
