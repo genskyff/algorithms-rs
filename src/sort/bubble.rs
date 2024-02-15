@@ -52,7 +52,7 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
         #[cfg(feature = "debug-print")]
         println!("\nbegin:\t{self:?}");
 
-        if len < 2 {
+        if self.is_empty() {
             return;
         }
 

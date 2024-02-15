@@ -19,7 +19,7 @@ impl<T: Ord + Copy + Debug> Selection for [T] {
         #[cfg(feature = "debug-print")]
         println!("\nbegin:\t{self:?}");
 
-        if len < 2 {
+        if self.is_empty() {
             return;
         }
 
@@ -32,9 +32,7 @@ impl<T: Ord + Copy + Debug> Selection for [T] {
                 }
             }
 
-            if i != min {
-                self.swap(i, min);
-            }
+            self.swap(i, min);
 
             #[cfg(feature = "debug-print")]
             println!("next:\t{self:?}");
