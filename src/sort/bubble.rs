@@ -56,13 +56,13 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
             return;
         }
 
-        let mut lo = 0;
-        let mut hi = len - 1;
+        let mut low = 0;
+        let mut high = len - 1;
 
-        while lo < hi {
+        while low < high {
             let mut swapped = false;
 
-            for i in lo..hi {
+            for i in low..high {
                 if self[i] > self[i + 1] {
                     self.swap(i, i + 1);
                     swapped = true;
@@ -75,10 +75,10 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
                 break;
             }
 
-            hi -= 1;
+            high -= 1;
             swapped = false;
 
-            for i in ((lo + 1)..=hi).rev() {
+            for i in ((low + 1)..=high).rev() {
                 if self[i] < self[i - 1] {
                     self.swap(i, i - 1);
                     swapped = true;
@@ -92,7 +92,7 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
                 break;
             }
 
-            lo += 1;
+            low += 1;
         }
     }
 }

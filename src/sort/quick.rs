@@ -29,18 +29,18 @@ impl<T: Ord + Copy + Debug> Quick for [T] {
     }
 }
 
-fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], mut lo: usize, mut hi: usize) {
-    while lo < hi {
-        let pivot = partition(arr, lo, hi);
+fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], mut low: usize, mut high: usize) {
+    while low < high {
+        let pivot = partition(arr, low, high);
 
-        if pivot - lo < hi - pivot {
+        if pivot - low < high - pivot {
             if pivot > 0 {
-                qsort(arr, lo, pivot - 1);
+                qsort(arr, low, pivot - 1);
             }
-            lo = pivot + 1;
+            low = pivot + 1;
         } else {
-            qsort(arr, pivot + 1, hi);
-            hi = pivot - 1;
+            qsort(arr, pivot + 1, high);
+            high = pivot - 1;
         }
 
         #[cfg(feature = "debug-print")]
@@ -48,29 +48,29 @@ fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], mut lo: usize, mut hi: usize) {
     }
 }
 
-fn partition<T: Ord + Copy + Debug>(arr: &mut [T], lo: usize, hi: usize) -> usize {
-    move_pivot_to_right(arr, lo, hi);
-    let pivot = arr[hi];
-    let mut tail = lo;
+fn partition<T: Ord + Copy + Debug>(arr: &mut [T], low: usize, high: usize) -> usize {
+    move_pivot_to_right(arr, low, high);
+    let pivot = arr[high];
+    let mut tail = low;
 
-    for i in lo..hi {
+    for i in low..high {
         if arr[i] <= pivot {
             arr.swap(i, tail);
             tail += 1;
         }
     }
-    arr.swap(tail, hi);
+    arr.swap(tail, high);
 
     tail
 }
 
-fn move_pivot_to_right<T: Ord + Copy + Debug>(arr: &mut [T], lo: usize, hi: usize) {
-    let mid = lo + (hi - lo) / 2;
+fn move_pivot_to_right<T: Ord + Copy + Debug>(arr: &mut [T], low: usize, high: usize) {
+    let mid = low + (high - low) / 2;
 
-    // move the median of lo, mid, hi to the hi (except hi is the median)
-    if (arr[lo] < arr[mid]) ^ (arr[lo] < arr[hi]) {
-        arr.swap(lo, hi);
-    } else if (arr[mid] < arr[lo]) ^ (arr[mid] < arr[hi]) {
-        arr.swap(mid, hi);
+    // move the median of low, mid, high to the high (except high is the median)
+    if (arr[low] < arr[mid]) ^ (arr[low] < arr[high]) {
+        arr.swap(low, high);
+    } else if (arr[mid] < arr[low]) ^ (arr[mid] < arr[high]) {
+        arr.swap(mid, high);
     }
 }

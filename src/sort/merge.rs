@@ -44,36 +44,36 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
     }
 }
 
-fn msort_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], lo: usize, hi: usize) {
-    if lo < hi {
-        let mid = lo + (hi - lo) / 2;
+fn msort_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, high: usize) {
+    if low < high {
+        let mid = low + (high - low) / 2;
 
-        msort_recu(arr, tmp, lo, mid);
-        msort_recu(arr, tmp, mid + 1, hi);
-        merge(arr, tmp, lo, mid, hi);
+        msort_recu(arr, tmp, low, mid);
+        msort_recu(arr, tmp, mid + 1, high);
+        merge(arr, tmp, low, mid, high);
     }
 }
 
 fn msort_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
-    let (mut lo, mut mid, mut hi);
+    let (mut low, mut mid, mut high);
 
     let mut i = 1;
     while i < len {
-        lo = 0;
-        while lo + i < len {
-            mid = lo + i - 1;
-            hi = if mid + i < len { mid + i } else { len - 1 };
-            merge(arr, tmp, lo, mid, hi);
-            lo = hi + 1;
+        low = 0;
+        while low + i < len {
+            mid = low + i - 1;
+            high = if mid + i < len { mid + i } else { len - 1 };
+            merge(arr, tmp, low, mid, high);
+            low = high + 1;
         }
         i *= 2;
     }
 }
 
-fn merge<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], lo: usize, mid: usize, hi: usize) {
-    let (mut l_pos, mut h_pos, mut t_pos) = (lo, mid + 1, lo);
+fn merge<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, mid: usize, high: usize) {
+    let (mut l_pos, mut h_pos, mut t_pos) = (low, mid + 1, low);
 
-    while l_pos <= mid && h_pos <= hi {
+    while l_pos <= mid && h_pos <= high {
         if arr[l_pos] < arr[h_pos] {
             tmp[t_pos] = arr[l_pos];
             l_pos += 1;
@@ -90,13 +90,13 @@ fn merge<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], lo: usize, mid: us
         t_pos += 1;
     }
 
-    while h_pos <= hi {
+    while h_pos <= high {
         tmp[t_pos] = arr[h_pos];
         h_pos += 1;
         t_pos += 1;
     }
 
-    for i in lo..t_pos {
+    for i in low..t_pos {
         arr[i] = tmp[i];
     }
 
