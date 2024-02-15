@@ -70,13 +70,7 @@ fn msort_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
     }
 }
 
-fn merge<T: Ord + Copy + Debug>(
-    arr: &mut [T],
-    tmp: &mut [T],
-    lo: usize,
-    mid: usize,
-    hi: usize,
-) {
+fn merge<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], lo: usize, mid: usize, hi: usize) {
     let (mut l_pos, mut h_pos, mut t_pos) = (lo, mid + 1, lo);
 
     while l_pos <= mid && h_pos <= hi {
