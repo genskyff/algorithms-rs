@@ -14,7 +14,7 @@ pub trait Quick {
     fn quick_sort(&mut self);
 }
 
-impl<T: Ord + Copy + Debug> Quick for [T] {
+impl<T: Ord + Debug> Quick for [T] {
     fn quick_sort(&mut self) {
         let len = self.len();
 
@@ -29,7 +29,7 @@ impl<T: Ord + Copy + Debug> Quick for [T] {
     }
 }
 
-fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], mut low: usize, mut high: usize) {
+fn qsort<T: Ord + Debug>(arr: &mut [T], mut low: usize, mut high: usize) {
     while low < high {
         let pivot = partition(arr, low, high);
 
@@ -48,23 +48,22 @@ fn qsort<T: Ord + Copy + Debug>(arr: &mut [T], mut low: usize, mut high: usize) 
     }
 }
 
-fn partition<T: Ord + Copy + Debug>(arr: &mut [T], low: usize, high: usize) -> usize {
+fn partition<T: Ord + Debug>(arr: &mut [T], low: usize, high: usize) -> usize {
     move_pivot_to_right(arr, low, high);
-    let pivot = arr[high];
-    let mut curr = low;
+    let mut cur = low;
 
     for i in low..high {
-        if arr[i] <= pivot {
-            arr.swap(i, curr);
-            curr += 1;
+        if arr[i] <= arr[high] {
+            arr.swap(i, cur);
+            cur += 1;
         }
     }
-    arr.swap(curr, high);
+    arr.swap(cur, high);
 
-    curr
+    cur
 }
 
-fn move_pivot_to_right<T: Ord + Copy + Debug>(arr: &mut [T], low: usize, high: usize) {
+fn move_pivot_to_right<T: Ord + Debug>(arr: &mut [T], low: usize, high: usize) {
     let mid = low + (high - low) / 2;
 
     // move the median of low, mid, high to the high

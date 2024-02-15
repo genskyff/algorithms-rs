@@ -25,23 +25,19 @@ pub trait Insertion {
     fn shell_sort(&mut self);
 }
 
-impl<T: Ord + Copy + Debug> Insertion for [T] {
+impl<T: Ord + Clone + Debug> Insertion for [T] {
     fn insertion_sort(&mut self) {
         let len = self.len();
 
         #[cfg(feature = "debug-print")]
         println!("\nbegin:\t{self:?}");
 
-        if self.is_empty() {
-            return;
-        }
-
         for i in 1..len {
-            let base = self[i];
+            let base = self[i].clone();
             let mut j = i;
 
             while j > 0 && self[j - 1] > base {
-                self[j] = self[j - 1];
+                self[j] = self[j - 1].clone();
                 j -= 1;
             }
 
@@ -58,12 +54,8 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
         #[cfg(feature = "debug-print")]
         println!("\nbegin:\t{self:?}");
 
-        if self.is_empty() {
-            return;
-        }
-
         for i in 1..len {
-            let base = self[i];
+            let base = self[i].clone();
             let mut low = 0;
             let mut high = i;
 
@@ -77,10 +69,7 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
                 }
             }
 
-            for j in (low..i).rev() {
-                self[j + 1] = self[j];
-            }
-
+            self[low..i + 1].rotate_right(1);
             self[low] = base;
 
             #[cfg(feature = "debug-print")]
@@ -94,10 +83,6 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
         #[cfg(feature = "debug-print")]
         println!("\nbegin:\t{self:?}");
 
-        if self.is_empty() {
-            return;
-        }
-
         let mut gap = 1;
 
         // Simplified Knuth's sequence
@@ -107,11 +92,11 @@ impl<T: Ord + Copy + Debug> Insertion for [T] {
 
         while gap >= 1 {
             for i in gap..len {
-                let base = self[i];
+                let base = self[i].clone();
                 let mut j = i;
 
                 while gap <= j && self[j - gap] > base {
-                    self[j] = self[j - gap];
+                    self[j] = self[j - gap].clone();
                     j -= gap;
                 }
 

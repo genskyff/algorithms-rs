@@ -16,21 +16,17 @@ pub trait Bubble {
     fn cocktail_sort(&mut self);
 }
 
-impl<T: Ord + Copy + Debug> Bubble for [T] {
+impl<T: Ord + Debug> Bubble for [T] {
     fn bubble_sort(&mut self) {
         let len = self.len();
 
         #[cfg(feature = "debug-print")]
         println!("\nbegin:\t{self:?}");
 
-        if len < 2 {
-            return;
-        }
-
         for i in 0..len {
             let mut swapped = false;
 
-            for j in 0..(len - i - 1) {
+            for j in 0..len - i - 1 {
                 if self[j] > self[j + 1] {
                     self.swap(j, j + 1);
                     swapped = true;
@@ -78,7 +74,7 @@ impl<T: Ord + Copy + Debug> Bubble for [T] {
             high -= 1;
             swapped = false;
 
-            for i in ((low + 1)..=high).rev() {
+            for i in (low + 1..=high).rev() {
                 if self[i] < self[i - 1] {
                     self.swap(i, i - 1);
                     swapped = true;

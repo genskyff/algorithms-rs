@@ -14,7 +14,7 @@ pub trait Merge {
     fn merge_sort_iter(&mut self);
 }
 
-impl<T: Ord + Copy + Debug> Merge for [T] {
+impl<T: Ord + Clone + Debug> Merge for [T] {
     fn merge_sort_recu(&mut self) {
         let len = self.len();
 
@@ -25,7 +25,7 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
             return;
         }
 
-        let mut tmp = vec![self[0]; len];
+        let mut tmp = vec![self[0].clone(); len];
         msort_recu(self, &mut tmp[..], 0, len - 1);
     }
 
@@ -39,12 +39,12 @@ impl<T: Ord + Copy + Debug> Merge for [T] {
             return;
         }
 
-        let mut tmp = vec![self[0]; len];
+        let mut tmp = vec![self[0].clone(); len];
         msort_iter(self, &mut tmp[..], len);
     }
 }
 
-fn msort_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, high: usize) {
+fn msort_recu<T: Ord + Clone + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, high: usize) {
     if low < high {
         let mid = low + (high - low) / 2;
 
@@ -54,7 +54,7 @@ fn msort_recu<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, h
     }
 }
 
-fn msort_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
+fn msort_iter<T: Ord + Clone + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
     let (mut low, mut mid, mut high);
 
     let mut i = 1;
@@ -70,34 +70,34 @@ fn msort_iter<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) {
     }
 }
 
-fn merge<T: Ord + Copy + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, mid: usize, high: usize) {
+fn merge<T: Ord + Clone + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, mid: usize, high: usize) {
     let (mut l_pos, mut h_pos, mut t_pos) = (low, mid + 1, low);
 
     while l_pos <= mid && h_pos <= high {
         if arr[l_pos] < arr[h_pos] {
-            tmp[t_pos] = arr[l_pos];
+            tmp[t_pos] = arr[l_pos].clone();
             l_pos += 1;
         } else {
-            tmp[t_pos] = arr[h_pos];
+            tmp[t_pos] = arr[h_pos].clone();
             h_pos += 1;
         }
         t_pos += 1;
     }
 
     while l_pos <= mid {
-        tmp[t_pos] = arr[l_pos];
+        tmp[t_pos] = arr[l_pos].clone();
         l_pos += 1;
         t_pos += 1;
     }
 
     while h_pos <= high {
-        tmp[t_pos] = arr[h_pos];
+        tmp[t_pos] = arr[h_pos].clone();
         h_pos += 1;
         t_pos += 1;
     }
 
     for i in low..t_pos {
-        arr[i] = tmp[i];
+        arr[i] = tmp[i].clone();
     }
 
     #[cfg(feature = "debug-print")]

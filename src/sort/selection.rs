@@ -12,7 +12,7 @@ pub trait Selection {
     fn selection_sort(&mut self);
 }
 
-impl<T: Ord + Copy + Debug> Selection for [T] {
+impl<T: Ord + Debug> Selection for [T] {
     fn selection_sort(&mut self) {
         let len = self.len();
 
@@ -26,7 +26,7 @@ impl<T: Ord + Copy + Debug> Selection for [T] {
         for i in 0..(len - 1) {
             let mut min = i;
 
-            for j in (i + 1)..len {
+            for j in i + 1..len {
                 if self[j] < self[min] {
                     min = j;
                 }
