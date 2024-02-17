@@ -20,71 +20,56 @@ impl<T: Ord + Debug> Bubble for [T] {
     fn bubble_sort(&mut self) {
         let len = self.len();
 
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         for i in 0..len {
-            let mut swapped = false;
+            let mut is_swapped = false;
 
             for j in 0..len - i - 1 {
                 if self[j] > self[j + 1] {
                     self.swap(j, j + 1);
-                    swapped = true;
+                    is_swapped = true;
                 }
             }
 
-            #[cfg(feature = "debug-print")]
-            println!("next:\t{self:?}");
-
-            if !swapped {
+            if !is_swapped {
                 break;
             }
         }
     }
 
     fn cocktail_sort(&mut self) {
-        let len = self.len();
-
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         if self.is_empty() {
             return;
         }
 
+        let len = self.len();
         let mut low = 0;
         let mut high = len - 1;
 
         while low < high {
-            let mut swapped = false;
+            let mut is_swapped = false;
 
             for i in low..high {
                 if self[i] > self[i + 1] {
                     self.swap(i, i + 1);
-                    swapped = true;
+                    is_swapped = true;
                 }
             }
 
-            if !swapped {
-                #[cfg(feature = "debug-print")]
-                println!("next:\t{self:?}");
+            if !is_swapped {
                 break;
             }
 
             high -= 1;
-            swapped = false;
+            is_swapped = false;
 
             for i in (low + 1..=high).rev() {
                 if self[i] < self[i - 1] {
                     self.swap(i, i - 1);
-                    swapped = true;
+                    is_swapped = true;
                 }
             }
 
-            #[cfg(feature = "debug-print")]
-            println!("next:\t{self:?}");
-
-            if !swapped {
+            if !is_swapped {
                 break;
             }
 

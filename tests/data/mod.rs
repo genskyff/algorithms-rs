@@ -24,7 +24,11 @@ impl TestData {
         unsorted.push(vec![5, -2]);
         unsorted.push(vec![7, 0, -3]);
 
-        let mut v = rng.clone().sample_iter(&value_range).take(20).collect::<Vec<i32>>();
+        let mut v = rng
+            .clone()
+            .sample_iter(&value_range)
+            .take(20)
+            .collect::<Vec<i32>>();
         v.sort();
         let mut v2 = v.clone();
         v2.reverse();

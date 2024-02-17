@@ -16,29 +16,21 @@ pub trait Merge {
 
 impl<T: Ord + Clone + Debug> Merge for [T] {
     fn merge_sort_recu(&mut self) {
-        let len = self.len();
-
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         if self.is_empty() {
             return;
         }
 
+        let len = self.len();
         let mut tmp = vec![self[0].clone(); len];
         msort_recu(self, &mut tmp[..], 0, len - 1);
     }
 
     fn merge_sort_iter(&mut self) {
-        let len = self.len();
-
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         if self.is_empty() {
             return;
         }
 
+        let len = self.len();
         let mut tmp = vec![self[0].clone(); len];
         msort_iter(self, &mut tmp[..], len);
     }
@@ -70,7 +62,13 @@ fn msort_iter<T: Ord + Clone + Debug>(arr: &mut [T], tmp: &mut [T], len: usize) 
     }
 }
 
-fn merge<T: Ord + Clone + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, mid: usize, high: usize) {
+fn merge<T: Ord + Clone + Debug>(
+    arr: &mut [T],
+    tmp: &mut [T],
+    low: usize,
+    mid: usize,
+    high: usize,
+) {
     let (mut l_pos, mut h_pos, mut t_pos) = (low, mid + 1, low);
 
     while l_pos <= mid && h_pos <= high {
@@ -99,7 +97,4 @@ fn merge<T: Ord + Clone + Debug>(arr: &mut [T], tmp: &mut [T], low: usize, mid: 
     for i in low..t_pos {
         arr[i] = tmp[i].clone();
     }
-
-    #[cfg(feature = "debug-print")]
-    println!("next:\t{arr:?}");
 }

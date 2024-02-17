@@ -16,15 +16,11 @@ pub trait Quick {
 
 impl<T: Ord + Debug> Quick for [T] {
     fn quick_sort(&mut self) {
-        let len = self.len();
-
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         if self.is_empty() {
             return;
         }
 
+        let len = self.len();
         qsort(self, 0, len - 1);
     }
 }
@@ -42,9 +38,6 @@ fn qsort<T: Ord + Debug>(arr: &mut [T], mut low: usize, mut high: usize) {
             qsort(arr, pivot + 1, high);
             high = pivot - 1;
         }
-
-        #[cfg(feature = "debug-print")]
-        println!("next:\t{arr:?}");
     }
 }
 

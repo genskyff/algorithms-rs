@@ -29,9 +29,6 @@ impl<T: Ord + Clone + Debug> Insertion for [T] {
     fn insertion_sort(&mut self) {
         let len = self.len();
 
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         for i in 1..len {
             let base = self[i].clone();
             let mut j = i;
@@ -42,17 +39,11 @@ impl<T: Ord + Clone + Debug> Insertion for [T] {
             }
 
             self[j] = base;
-
-            #[cfg(feature = "debug-print")]
-            println!("next: \t{self:?}");
         }
     }
 
     fn binary_insertion_sort(&mut self) {
         let len = self.len();
-
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
 
         for i in 1..len {
             let base = self[i].clone();
@@ -71,18 +62,11 @@ impl<T: Ord + Clone + Debug> Insertion for [T] {
 
             self[low..i + 1].rotate_right(1);
             self[low] = base;
-
-            #[cfg(feature = "debug-print")]
-            println!("next:\t{self:?}");
         }
     }
 
     fn shell_sort(&mut self) {
         let len = self.len();
-
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         let mut gap = 1;
 
         // Simplified Knuth's sequence
@@ -104,9 +88,6 @@ impl<T: Ord + Clone + Debug> Insertion for [T] {
             }
 
             gap = (gap - 1) / 3;
-
-            #[cfg(feature = "debug-print")]
-            println!("next:\t{self:?}");
         }
     }
 }

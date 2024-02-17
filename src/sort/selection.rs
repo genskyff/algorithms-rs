@@ -14,15 +14,11 @@ pub trait Selection {
 
 impl<T: Ord + Debug> Selection for [T] {
     fn selection_sort(&mut self) {
-        let len = self.len();
-
-        #[cfg(feature = "debug-print")]
-        println!("\nbegin:\t{self:?}");
-
         if self.is_empty() {
             return;
         }
 
+        let len = self.len();
         for i in 0..(len - 1) {
             let mut min = i;
 
@@ -33,9 +29,6 @@ impl<T: Ord + Debug> Selection for [T] {
             }
 
             self.swap(i, min);
-
-            #[cfg(feature = "debug-print")]
-            println!("next:\t{self:?}");
         }
     }
 }
