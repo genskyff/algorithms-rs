@@ -7,7 +7,7 @@ This is a repository implemented in Rust for various fundamental algorithms and 
 - Only use stable Rust
 - Use Unsafe features only in certain data structures
 - Includes integration tests
-- Includes documents
+- Includes documentation
 
 ## Usage
 You need to install Rust, and then run the following commands.
@@ -25,7 +25,7 @@ cargo doc --open
 ```
 
 ## Roadmap
-- [x] Sorting algorithms
+- [x] Sorting
   - [x] Bubble sort
   - [x] Cocktail sort
   - [ ] Heap sort
