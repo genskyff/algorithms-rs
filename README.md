@@ -25,7 +25,7 @@ cargo doc --open
 ```
 
 ## Roadmap
-- [x] Sorting
+- [ ] Sorting
   - [x] Bubble sort
   - [x] Cocktail sort
   - [ ] Heap sort
@@ -42,9 +42,7 @@ cargo doc --open
 - [ ] Data structures
   - [ ] Linear lists
     - [ ] Sequential list
-    - [ ] Singly linked list
-    - [ ] Doubly linked list
-    - [ ] Circular linked list
+    - [ ] Linked list
   - [ ] Queue
   - [ ] Stack
   - [ ] Hash table
