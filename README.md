@@ -32,8 +32,8 @@ cargo doc --open
   - [x] Insertion sort
   - [x] Binary insertion sort
   - [x] Shell sort
-  - [x] Merge sort (recursive version)
-  - [x] Merge sort (iterative version)
+  - [x] Merge sort (recursion version)
+  - [x] Merge sort (iteration version)
   - [x] Quick sort
   - [x] Selection sort
   - [ ] Bucket sort
@@ -42,9 +42,14 @@ cargo doc --open
 - [ ] Data structures
   - [ ] Linear lists
     - [ ] Sequential list
+    - [ ] Static linked list
     - [ ] Linked list
   - [ ] Queue
+    - [ ] Array queue
+    - [ ] Linked queue
   - [ ] Stack
+    - [ ] Array stack
+    - [ ] Linked stack
   - [ ] Hash table
   - [ ] Tree
   - [ ] Heap
