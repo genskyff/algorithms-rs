@@ -1,5 +1,9 @@
 # Algorithms implemented in Rust
 
+<a href="https://github.com/genskyff/algorithms-rs/actions/workflows/rust.yml">
+  <img src="https://github.com/genskyff/algorithms-rs/actions/workflows/rust.yml/badge.svg" height="20" alt="Build workflow">
+</a>
+
 ## Overview
 This is a repository implemented in Rust for various fundamental algorithms and data structures, intended for learning and recording purposes. It is licensed under the GPLv3 and is designed to be modular, making it easy to import into other code.
 
