@@ -45,7 +45,7 @@ cargo doc --open
   - [ ] Radix sort
 - [ ] Data structures
   - [ ] Linear lists
-    - [ ] Sequential list
+    - [x] Sequential list
     - [ ] Static linked list
     - [ ] Linked list
   - [ ] Queue

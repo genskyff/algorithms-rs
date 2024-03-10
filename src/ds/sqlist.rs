@@ -1,8 +1,7 @@
+use crate::ds::MAXLEN;
 use std::cmp;
 use std::fmt::{self, Debug, Display};
 use std::ops::{Index, IndexMut, Range};
-
-const MAXLEN: usize = 100;
 
 #[derive(Debug)]
 pub struct SqList<T> {
@@ -33,7 +32,7 @@ where
 impl<T: Copy + Default> From<&[T]> for SqList<T> {
     fn from(arr: &[T]) -> Self {
         let mut list = Self::default();
-        for i in 0..arr.len() {
+        for i in 0..cmp::min(arr.len(), MAXLEN) {
             list.data[i] = arr[i];
         }
         list.len = arr.len();
