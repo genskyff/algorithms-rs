@@ -1,5 +1,5 @@
 use std::cmp;
-use std::fmt::Debug;
+use std::fmt::{self, Debug, Display};
 use std::ops::{Index, IndexMut, Range};
 
 const MAXLEN: usize = 100;
@@ -10,12 +10,23 @@ pub struct SqList<T> {
     len: usize,
 }
 
+// trait impls
+
 impl<T: Copy + Default> Default for SqList<T> {
     fn default() -> Self {
         Self {
             data: [Default::default(); MAXLEN],
             len: 0,
         }
+    }
+}
+
+impl<T> Display for SqList<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", &self.data[0..self.len])
     }
 }
 
@@ -27,6 +38,36 @@ impl<T: Copy + Default> From<&[T]> for SqList<T> {
         }
         list.len = arr.len();
         list
+    }
+}
+
+impl<T> PartialEq for SqList<T>
+where
+    T: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        if self.len != other.len {
+            return false;
+        }
+
+        for i in 0..self.len {
+            if self.data[i] != other.data[i] {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+impl<T> AsRef<[T]> for SqList<T> {
+    fn as_ref(&self) -> &[T] {
+        &self.data[0..self.len]
+    }
+}
+
+impl<T> AsMut<[T]> for SqList<T> {
+    fn as_mut(&mut self) -> &mut [T] {
+        &mut self.data[0..self.len]
     }
 }
 
@@ -58,23 +99,7 @@ impl<T> IndexMut<Range<usize>> for SqList<T> {
     }
 }
 
-impl<T> PartialEq for SqList<T>
-where
-    T: PartialEq,
-{
-    fn eq(&self, other: &Self) -> bool {
-        if self.len != other.len {
-            return false;
-        }
-
-        for i in 0..self.len {
-            if self.data[i] != other.data[i] {
-                return false;
-            }
-        }
-        true
-    }
-}
+// impls
 
 impl<T: Copy + Default> SqList<T> {
     pub fn new() -> Self {

@@ -2,6 +2,8 @@ use algorithms_rs::ds::SqList;
 
 const TEST_DATA: [i32; 6] = [0, 1, 2, 3, 4, 5];
 
+// test trait impls
+
 #[test]
 fn test_default() {
     let list = SqList::<i32>::default();
@@ -10,10 +12,38 @@ fn test_default() {
 }
 
 #[test]
+fn test_display() {
+    let mut list = SqList::from(&TEST_DATA[..]);
+    assert_eq!(format!("{}", list), "[0, 1, 2, 3, 4, 5]");
+    list.clear();
+    assert_eq!(format!("{}", list), "[]");
+}
+
+#[test]
 fn test_from() {
     let list = SqList::from(&TEST_DATA[..]);
     assert_eq!(list.len(), TEST_DATA.len());
     assert_eq!(&list[0..list.len()], TEST_DATA);
+}
+
+#[test]
+fn test_eq() {
+    let list1 = SqList::from(&TEST_DATA[..]);
+    let list2 = SqList::from(&TEST_DATA[..]);
+    assert_eq!(list1, list2);
+}
+
+#[test]
+fn test_as_ref() {
+    let list = SqList::from(&TEST_DATA[..]);
+    assert_eq!(list.as_ref(), &TEST_DATA[..]);
+}
+
+#[test]
+fn test_as_mut() {
+    let mut list = SqList::from(&TEST_DATA[..]);
+    list.as_mut()[0] = 10;
+    assert_eq!(list[0], 10);
 }
 
 #[test]
@@ -34,12 +64,7 @@ fn test_index_mut() {
     assert_eq!(list[1..4], [11, 12, 13]);
 }
 
-#[test]
-fn test_eq() {
-    let list1 = SqList::from(&TEST_DATA[..]);
-    let list2 = SqList::from(&TEST_DATA[..]);
-    assert_eq!(list1, list2);
-}
+// test impls
 
 #[test]
 fn test_create() {
