@@ -2,7 +2,7 @@
 pub mod ds;
 
 /// # Search Algorithms
-pub mod search;
+// pub mod search;
 
 /// # Sorting Algorithms
 pub mod sort;
