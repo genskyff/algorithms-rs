@@ -46,7 +46,7 @@ cargo doc --open
 - [ ] Data structures
   - [ ] Linear lists
     - [x] Sequential list
-    - [ ] Static linked list
+    - [x] Static linked list
     - [ ] Linked list
   - [ ] Queue
     - [ ] Array queue

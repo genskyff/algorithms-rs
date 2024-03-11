@@ -1,7 +1,7 @@
 use crate::ds::MAXLEN;
 use std::cmp;
 use std::fmt::{self, Debug, Display};
-use std::ops::{Index, IndexMut, Range};
+use std::ops::{Index, IndexMut};
 
 #[derive(Debug, Clone, Copy)]
 struct SNode<T> {
@@ -12,7 +12,7 @@ struct SNode<T> {
 
 // node[0] is the head
 // node[len - 1] is the tail
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SLinkedList<T> {
     nodes: [SNode<T>; MAXLEN],
     space: Option<usize>,
@@ -137,6 +137,15 @@ where
     }
 }
 
+impl<T: Copy + Default> IntoIterator for SLinkedList<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Vec::from(self).into_iter()
+    }
+}
+
 impl<T> Index<usize> for SLinkedList<T> {
     type Output = T;
 
@@ -197,8 +206,105 @@ impl<T: Copy + Default> SLinkedList<T> {
         Default::default()
     }
 
+    pub fn to_vec(&self) -> Vec<T> {
+        Vec::from(self.clone())
+    }
+
     pub fn len(&self) -> usize {
         self.len
+    }
+
+    pub fn swap(&mut self, mut i: usize, mut j: usize) {
+        if self.is_empty() || i == j || cmp::max(i, j) >= self.len {
+            return;
+        }
+
+        if i > j {
+            std::mem::swap(&mut i, &mut j);
+        }
+
+        let mut node_i = 0;
+        let mut node_j = 0;
+        let mut cur = self.head;
+        for k in 0..=j {
+            if k == i {
+                node_i = cur.unwrap();
+            }
+            if k == j {
+                node_j = cur.unwrap();
+            }
+            cur = self.nodes[cur.unwrap()].next;
+        }
+
+        let i_prev = self.nodes[node_i].prev;
+        let i_next = self.nodes[node_i].next;
+        let j_prev = self.nodes[node_j].prev;
+        let j_next = self.nodes[node_j].next;
+
+        // adjacent nodes
+        if i_next == Some(node_j) {
+            // node_i is directly connected to node_j
+            self.nodes[node_i].next = j_next;
+            if j_next.is_some() {
+                self.nodes[j_next.unwrap()].prev = Some(node_i);
+            }
+
+            self.nodes[node_j].prev = i_prev;
+            if i_prev.is_some() {
+                self.nodes[i_prev.unwrap()].next = Some(node_j);
+            }
+
+            self.nodes[node_j].next = Some(node_i);
+            self.nodes[node_i].prev = Some(node_j);
+        } else {
+            // non-adjacent nodes
+            if i_prev.is_some() {
+                self.nodes[i_prev.unwrap()].next = Some(node_j);
+            }
+
+            if i_next.is_some() {
+                self.nodes[i_next.unwrap()].prev = Some(node_j);
+            }
+
+            if j_prev.is_some() {
+                self.nodes[j_prev.unwrap()].next = Some(node_i);
+            }
+
+            if j_next.is_some() {
+                self.nodes[j_next.unwrap()].prev = Some(node_i);
+            }
+
+            self.nodes[node_i].prev = j_prev;
+            self.nodes[node_j].prev = i_prev;
+
+            let tmp = self.nodes[node_i].next;
+            self.nodes[node_i].next = self.nodes[node_j].next;
+            self.nodes[node_j].next = tmp;
+        }
+
+        if self.head == Some(node_i) {
+            self.head = Some(node_j);
+        } else if self.head == Some(node_j) {
+            self.head = Some(node_i);
+        }
+
+        if self.tail == Some(node_i) {
+            self.tail = Some(node_j);
+        } else if self.tail == Some(node_j) {
+            self.tail = Some(node_i);
+        }
+    }
+
+    pub fn reverse(&mut self) {
+        if !self.is_empty() {
+            let mut i = 0;
+            let mut j = self.len - 1;
+            while i < j {
+                self.swap(i, j);
+                i += 1;
+                j -= 1;
+            }
+        }
     }
 
     pub fn clear(&mut self) {
@@ -223,5 +329,171 @@ impl<T: Copy + Default> SLinkedList<T> {
 
     pub fn is_empty(&self) -> bool {
         self.len == 0
+    }
+
+    pub fn get(&self, i: usize) -> Option<T> {
+        if i < self.len {
+            if i < (self.len + 1) / 2 {
+                let mut idx = self.head;
+                for _ in 0..i {
+                    idx = self.nodes[idx.unwrap()].next;
+                }
+                return Some(self.nodes[idx.unwrap()].data);
+            } else {
+                let mut idx = self.tail;
+                for _ in 0..(self.len - i - 1) {
+                    idx = self.nodes[idx.unwrap()].prev;
+                }
+                return Some(self.nodes[idx.unwrap()].data);
+            }
+        }
+
+        None
+    }
+
+    pub fn first(&self) -> Option<T> {
+        self.get(0)
+    }
+
+    pub fn last(&self) -> Option<T> {
+        if self.is_empty() {
+            None
+        } else {
+            self.get(self.len - 1)
+        }
+    }
+
+    pub fn set(&mut self, i: usize, e: T) -> bool {
+        if i < self.len {
+            if i < (self.len + 1) / 2 {
+                let mut idx = self.head;
+                for _ in 0..i {
+                    idx = self.nodes[idx.unwrap()].next;
+                }
+                self.nodes[idx.unwrap()].data = e;
+            } else {
+                let mut idx = self.tail;
+                for _ in 0..(self.len - i - 1) {
+                    idx = self.nodes[idx.unwrap()].prev;
+                }
+                self.nodes[idx.unwrap()].data = e;
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn find(&self, e: T) -> Option<usize>
+    where
+        T: PartialEq,
+    {
+        let mut idx = self.head;
+        let mut i = 0;
+        while let Some(j) = idx {
+            if self.nodes[j].data == e {
+                return Some(i);
+            }
+            idx = self.nodes[j].next;
+            i += 1;
+        }
+        None
+    }
+
+    pub fn insert(&mut self, i: usize, e: T) -> bool {
+        if i > self.len {
+            return false;
+        }
+
+        if let Some(idx) = self.alloc() {
+            self.nodes[idx].data = e;
+
+            if i == 0 {
+                self.nodes[idx].prev = None;
+                self.nodes[idx].next = self.head;
+                if self.head.is_some() {
+                    self.nodes[self.head.unwrap()].prev = Some(idx);
+                }
+                self.head = Some(idx);
+            } else if i == self.len {
+                self.nodes[idx].prev = self.tail;
+                self.nodes[idx].next = None;
+                if self.tail.is_some() {
+                    self.nodes[self.tail.unwrap()].next = Some(idx);
+                }
+                self.tail = Some(idx);
+            } else {
+                let mut cur = self.head.unwrap();
+                for _ in 0..i {
+                    cur = self.nodes[cur].next.unwrap();
+                }
+                self.nodes[idx].prev = self.nodes[cur].prev;
+                self.nodes[idx].next = Some(cur);
+                self.nodes[cur].prev = Some(idx);
+                if self.nodes[idx].prev.is_some() {
+                    self.nodes[self.nodes[idx].prev.unwrap()].next = Some(idx);
+                }
+            }
+
+            self.len += 1;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn push_front(&mut self, e: T) -> bool {
+        self.insert(0, e)
+    }
+
+    pub fn push_back(&mut self, e: T) -> bool {
+        self.insert(self.len, e)
+    }
+
+    pub fn remove(&mut self, i: usize) -> Option<T> {
+        if i >= self.len {
+            return None;
+        }
+
+        let mut cur = self.head.unwrap();
+        for _ in 0..i {
+            cur = self.nodes[cur].next.unwrap();
+        }
+
+        let e = self.nodes[cur].data;
+        if i == 0 {
+            self.head = self.nodes[cur].next;
+            if self.head.is_some() {
+                self.nodes[self.head.unwrap()].prev = None;
+            }
+        } else if i == self.len - 1 {
+            self.tail = self.nodes[cur].prev;
+            if self.tail.is_some() {
+                self.nodes[self.tail.unwrap()].next = None;
+            }
+        } else {
+            if self.nodes[cur].prev.is_some() {
+                self.nodes[self.nodes[cur].prev.unwrap()].next = self.nodes[cur].next;
+            }
+            if self.nodes[cur].next.is_some() {
+                self.nodes[self.nodes[cur].next.unwrap()].prev = self.nodes[cur].prev;
+            }
+        }
+
+        self.free(cur);
+        self.len -= 1;
+        Some(e)
+    }
+
+    pub fn pop_front(&mut self) -> Option<T> {
+        self.remove(0)
+    }
+
+    pub fn pop_back(&mut self) -> Option<T> {
+        if self.is_empty() {
+            None
+        } else {
+            self.remove(self.len - 1)
+        }
     }
 }

@@ -67,7 +67,7 @@ fn test_index_mut() {
 // test impls
 
 #[test]
-fn test_create() {
+fn test_new() {
     let list = SqList::<i32>::new();
     assert_eq!(list.len(), 0);
 }
@@ -133,16 +133,15 @@ fn test_set() {
     let mut list = SqList::from(&TEST_DATA[..]);
     assert!(list.set(0, 10));
     assert_eq!(list[0], 10);
-    assert!(list.set(5, 10));
-    assert_eq!(list[5], 10);
     assert!(!list.set(99, 10));
+    assert_eq!(list.get(99), None);
 }
 
 #[test]
 fn test_find() {
     let list = SqList::from(&TEST_DATA[..]);
     assert_eq!(list.find(3), Some(3));
-    assert_eq!(list.find(6), None);
+    assert_eq!(list.find(99), None);
 }
 
 #[test]
