@@ -1,8 +1,11 @@
 const MAXLEN: usize = 100;
+pub use node::Node;
 
-pub(super) mod node {
+mod node {
+    use std::collections::LinkedList;
     use std::ptr::NonNull;
 
+    #[derive(Debug)]
     pub struct Node<T> {
         pub val: T,
         pub prev: Option<NonNull<Node<T>>>,
@@ -16,6 +19,10 @@ pub(super) mod node {
                 prev: None,
                 next: None,
             }
+        }
+
+        pub fn into_val(self: Box<Self>) -> T {
+            self.val
         }
     }
 }
