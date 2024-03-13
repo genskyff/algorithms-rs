@@ -32,36 +32,32 @@ impl<T> Drop for LinkedList<T> {
 }
 
 impl<T> LinkedList<T> {
-    fn push_front_node(&mut self, node: NonNull<Node<T>>) {
-        unsafe {
-            (*node.as_ptr()).prev = None;
-            (*node.as_ptr()).next = self.head;
-            let node = Some(node);
+    unsafe fn push_front_node(&mut self, node: NonNull<Node<T>>) {
+        (*node.as_ptr()).prev = None;
+        (*node.as_ptr()).next = self.head;
+        let node = Some(node);
 
-            match self.head {
-                Some(head) => (*head.as_ptr()).prev = node,
-                None => self.tail = node,
-            }
-
-            self.head = node;
-            self.len += 1;
+        match self.head {
+            Some(head) => (*head.as_ptr()).prev = node,
+            None => self.tail = node,
         }
+
+        self.head = node;
+        self.len += 1;
     }
 
-    fn push_back_node(&mut self, node: NonNull<Node<T>>) {
-        unsafe {
-            (*node.as_ptr()).prev = self.tail;
-            (*node.as_ptr()).next = None;
-            let node = Some(node);
+    unsafe fn push_back_node(&mut self, node: NonNull<Node<T>>) {
+        (*node.as_ptr()).prev = self.tail;
+        (*node.as_ptr()).next = None;
+        let node = Some(node);
 
-            match self.tail {
-                Some(tail) => (*tail.as_ptr()).next = node,
-                None => self.head = node,
-            }
-
-            self.tail = node;
-            self.len += 1;
+        match self.tail {
+            Some(tail) => (*tail.as_ptr()).next = node,
+            None => self.head = node,
         }
+
+        self.tail = node;
+        self.len += 1;
     }
 
     fn pop_front_node(&mut self) -> Option<Box<Node<T>>> {
@@ -131,6 +127,30 @@ impl<T> LinkedList<T> {
             std::mem::swap(&mut i, &mut j);
         }
     }
+
+    pub fn push_front(&mut self, val: T) {
+        let node = Box::new(Node::new(val));
+        let node_ptr = NonNull::from(Box::leak(node));
+        unsafe {
+            self.push_front_node(node_ptr);
+        }
+    }
+
+    pub fn push_back(&mut self, val: T) {
+        let node = Box::new(Node::new(val));
+        let node_ptr = NonNull::from(Box::leak(node));
+        unsafe {
+            self.push_back_node(node_ptr);
+        }
+    }
+
+    pub fn pop_front(&mut self) -> Option<T> {
+        self.pop_front_node().map(|node| node.into_val())
+    }
+
+    pub fn pop_back(&mut self) -> Option<T> {
+        self.pop_back_node().map(|node| node.into_val())
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -186,4 +206,12 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 #[derive(Debug, Clone)]
 struct IntoIter<T> {
     list: LinkedList<T>,
+}
+
+impl<T> Iterator for IntoIter<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.list.pop_front()
+    }
 }
