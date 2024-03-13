@@ -5,7 +5,7 @@ mod node {
     use std::collections::LinkedList;
     use std::ptr::NonNull;
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub struct Node<T> {
         pub val: T,
         pub prev: Option<NonNull<Node<T>>>,

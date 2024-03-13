@@ -1,9 +1,8 @@
 use crate::ds::Node;
-use std::io::Lines;
-use std::mem;
+use std::{cmp, mem};
 use std::{marker::PhantomData, ptr::NonNull};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LinkedList<T> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
@@ -122,4 +121,69 @@ impl<T> LinkedList<T> {
     pub fn is_empty(&self) -> bool {
         self.head.is_none()
     }
+
+    pub fn swap(&mut self, mut i: usize, mut j: usize) {
+        if self.is_empty() || i == j || cmp::max(i, j) >= self.len {
+            return;
+        }
+
+        if i > j {
+            std::mem::swap(&mut i, &mut j);
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Iter<'a, T: 'a> {
+    head: Option<NonNull<Node<T>>>,
+    tail: Option<NonNull<Node<T>>>,
+    len: usize,
+    marker: PhantomData<&'a Node<T>>,
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.len == 0 {
+            None
+        } else {
+            self.head.map(|node| unsafe {
+                let node = &*node.as_ptr();
+                self.head = node.next;
+                self.len -= 1;
+                &node.val
+            })
+        }
+    }
+}
+
+#[derive(Debug)]
+struct IterMut<'a, T: 'a> {
+    head: Option<NonNull<Node<T>>>,
+    tail: Option<NonNull<Node<T>>>,
+    len: usize,
+    marker: PhantomData<&'a mut Node<T>>,
+}
+
+impl<'a, T> Iterator for IterMut<'a, T> {
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.len == 0 {
+            None
+        } else {
+            self.head.map(|node| unsafe {
+                let node = &mut *node.as_ptr();
+                self.head = node.next;
+                self.len -= 1;
+                &mut node.val
+            })
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct IntoIter<T> {
+    list: LinkedList<T>,
 }
