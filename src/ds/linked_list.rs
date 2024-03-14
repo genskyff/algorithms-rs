@@ -49,6 +49,15 @@ impl<'a, T> IntoIterator for &'a LinkedList<T> {
     }
 }
 
+impl<'a, T> IntoIterator for &'a mut LinkedList<T> {
+    type Item = &'a mut T;
+    type IntoIter = IterMut<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
+    }
+}
+
 impl<T> LinkedList<T> {
     unsafe fn push_front_node(&mut self, node: NonNull<Node<T>>) {
         (*node.as_ptr()).prev = None;
@@ -272,4 +281,55 @@ impl<T> Iterator for IntoIter<T> {
     fn next(&mut self) -> Option<Self::Item> {
         self.list.pop_front()
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct Cursor<'a, T: 'a> {
+    index: usize,
+    current: Option<NonNull<Node<T>>>,
+    list: &'a LinkedList<T>,
+}
+
+impl<'a, T> Cursor<'a, T> {
+    pub fn index(&self) -> Option<usize> {
+        let _ = self.current?;
+        Some(self.index)
+    }
+
+    pub fn move_next(&mut self) {
+        match self.current.take() {
+            Some(cur) => unsafe {
+                self.current = cur.as_ref().next;
+                self.index += 1;
+            },
+            None => {
+                self.index = 0;
+                self.current = self.list.head;
+            }
+        }
+    }
+
+    pub fn move_prev(&mut self) {
+        match self.current.take() {
+            Some(cur) => unsafe {
+                self.current = cur.as_ref().prev;
+                self.index.checked_sub(1).unwrap_or(0);
+            },
+            None => {
+                self.current = self.list.tail;
+                self.index.checked_div(1).unwrap_or(self.list.len());
+            }
+        }
+    }
+
+    pub fn current(&self) -> Option<&'a T> {
+        unsafe { self.current.map(|cur| &(*cur.as_ptr()).val) }
+    }
+}
+
+#[derive(Debug)]
+pub struct CursorMut<'a, T: 'a> {
+    index: usize,
+    current: Option<NonNull<Node<T>>>,
+    list: &'a mut LinkedList<T>,
 }
