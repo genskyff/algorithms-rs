@@ -31,6 +31,24 @@ impl<T> Drop for LinkedList<T> {
     }
 }
 
+impl<T> IntoIterator for LinkedList<T> {
+    type Item = T;
+    type IntoIter = IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter { list: self }
+    }
+}
+
+impl<'a, T> IntoIterator for &'a LinkedList<T> {
+    type Item = &'a T;
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
 impl<T> LinkedList<T> {
     unsafe fn push_front_node(&mut self, node: NonNull<Node<T>>) {
         (*node.as_ptr()).prev = None;
@@ -151,14 +169,43 @@ impl<T> LinkedList<T> {
     pub fn pop_back(&mut self) -> Option<T> {
         self.pop_back_node().map(|node| node.into_val())
     }
+
+    pub fn iter(&self) -> Iter<'_, T> {
+        Iter {
+            head: self.head,
+            tail: self.tail,
+            len: self.len,
+            marker: PhantomData,
+        }
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<'_, T> {
+        IterMut {
+            head: self.head,
+            tail: self.tail,
+            len: self.len,
+            marker: PhantomData,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
-struct Iter<'a, T: 'a> {
+pub struct Iter<'a, T: 'a> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
     len: usize,
     marker: PhantomData<&'a Node<T>>,
+}
+
+impl<T> Default for Iter<'_, T> {
+    fn default() -> Self {
+        Self {
+            head: None,
+            tail: None,
+            len: 0,
+            marker: Default::default(),
+        }
+    }
 }
 
 impl<'a, T> Iterator for Iter<'a, T> {
@@ -179,11 +226,22 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 #[derive(Debug)]
-struct IterMut<'a, T: 'a> {
+pub struct IterMut<'a, T: 'a> {
     head: Option<NonNull<Node<T>>>,
     tail: Option<NonNull<Node<T>>>,
     len: usize,
     marker: PhantomData<&'a mut Node<T>>,
+}
+
+impl<T> Default for IterMut<'_, T> {
+    fn default() -> Self {
+        Self {
+            head: None,
+            tail: None,
+            len: 0,
+            marker: Default::default(),
+        }
+    }
 }
 
 impl<'a, T> Iterator for IterMut<'a, T> {
@@ -204,7 +262,7 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 }
 
 #[derive(Debug, Clone)]
-struct IntoIter<T> {
+pub struct IntoIter<T> {
     list: LinkedList<T>,
 }
 
