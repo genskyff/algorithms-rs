@@ -470,4 +470,17 @@ impl<'a, T> CursorMut<'a, T> {
             self.list.pop_front()
         }
     }
+
+    pub fn pop_back(&mut self) -> Option<T> {
+        if self.list.is_empty() {
+            None
+        } else {
+            if self.current == self.list.tail {
+                self.current = None;
+            } else if self.current.is_none() {
+                self.index = self.list.len() - 1;
+            }
+            self.list.pop_back()
+        }
+    }
 }
