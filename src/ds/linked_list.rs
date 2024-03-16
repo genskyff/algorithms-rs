@@ -59,6 +59,22 @@ impl<'a, T> IntoIterator for &'a mut LinkedList<T> {
 }
 
 impl<T> LinkedList<T> {
+    unsafe fn unlink(&mut self, mut node: NonNull<Node<T>>) {
+        let node = node.as_mut();
+
+        match node.prev {
+            Some(prev) => (*prev.as_ptr()).next = node.next,
+            None => self.head = node.next,
+        }
+
+        match node.next {
+            Some(next) => (*next.as_ptr()).prev = node.prev,
+            None => self.tail = node.prev,
+        }
+
+        self.len -= 1;
+    }
+
     unsafe fn push_front_node(&mut self, node: NonNull<Node<T>>) {
         (*node.as_ptr()).prev = None;
         (*node.as_ptr()).next = self.head;
@@ -153,6 +169,18 @@ impl<T> LinkedList<T> {
         if i > j {
             std::mem::swap(&mut i, &mut j);
         }
+    }
+
+    pub fn front(&self) -> Option<&T> {
+        self.head
+            .as_ref()
+            .map(|node| unsafe { &(*node.as_ptr()).val })
+    }
+
+    pub fn back(&self) -> Option<&T> {
+        self.tail
+            .as_ref()
+            .map(|node| unsafe { &(*node.as_ptr()).val })
     }
 
     pub fn push_front(&mut self, val: T) {
@@ -325,6 +353,34 @@ impl<'a, T> Cursor<'a, T> {
     pub fn current(&self) -> Option<&'a T> {
         unsafe { self.current.map(|cur| &(*cur.as_ptr()).val) }
     }
+
+    pub fn peek_next(&self) -> Option<&'a T> {
+        unsafe {
+            let next = match self.current {
+                Some(cur) => cur.as_ref().next,
+                None => self.list.head,
+            };
+            next.map(|node| &(*node.as_ptr()).val)
+        }
+    }
+
+    pub fn peek_prev(&self) -> Option<&'a T> {
+        unsafe {
+            let prev = match self.current {
+                Some(cur) => cur.as_ref().prev,
+                None => self.list.tail,
+            };
+            prev.map(|node| &(*node.as_ptr()).val)
+        }
+    }
+
+    pub fn front(&self) -> Option<&'a T> {
+        self.list.front()
+    }
+
+    pub fn back(&self) -> Option<&'a T> {
+        self.list.back()
+    }
 }
 
 #[derive(Debug)]
@@ -332,4 +388,86 @@ pub struct CursorMut<'a, T: 'a> {
     index: usize,
     current: Option<NonNull<Node<T>>>,
     list: &'a mut LinkedList<T>,
+}
+
+impl<'a, T> CursorMut<'a, T> {
+    pub fn index(&self) -> Option<usize> {
+        let _ = self.current?;
+        Some(self.index)
+    }
+
+    pub fn move_next(&mut self) {
+        match self.current.take() {
+            Some(cur) => unsafe {
+                self.current = cur.as_ref().next;
+                self.index += 1;
+            },
+            None => {
+                self.index = 0;
+                self.current = self.list.head;
+            }
+        }
+    }
+
+    pub fn move_prev(&mut self) {
+        match self.current.take() {
+            Some(cur) => unsafe {
+                self.current = cur.as_ref().prev;
+                self.index.checked_sub(1).unwrap_or(0);
+            },
+            None => {
+                self.current = self.list.tail;
+                self.index.checked_div(1).unwrap_or(self.list.len());
+            }
+        }
+    }
+
+    pub fn current(&self) -> Option<&'a mut T> {
+        unsafe { self.current.map(|cur| &mut (*cur.as_ptr()).val) }
+    }
+
+    pub fn peek_next(&mut self) -> Option<&'a mut T> {
+        unsafe {
+            let next = match self.current {
+                Some(cur) => cur.as_ref().next,
+                None => self.list.head,
+            };
+            next.map(|node| &mut (*node.as_ptr()).val)
+        }
+    }
+
+    pub fn peek_prev(&mut self) -> Option<&'a mut T> {
+        unsafe {
+            let prev = match self.current {
+                Some(cur) => cur.as_ref().prev,
+                None => self.list.tail,
+            };
+            prev.map(|node| &mut (*node.as_ptr()).val)
+        }
+    }
+
+    pub fn push_front(&mut self, val: T) {
+        self.list.push_front(val);
+        self.index += 1;
+    }
+
+    pub fn push_back(&mut self, val: T) {
+        self.list.push_back(val);
+        if self.current.is_none() {
+            self.index += 1;
+        }
+    }
+
+    pub fn pop_front(&mut self) -> Option<T> {
+        if self.list.is_empty() {
+            None
+        } else {
+            if self.current == self.list.head {
+                self.move_next();
+            } else {
+                self.index -= 1;
+            }
+            self.list.pop_front()
+        }
+    }
 }
