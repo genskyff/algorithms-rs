@@ -1,4 +1,5 @@
 use crate::ds::Node;
+use std::ops::{Index, IndexMut};
 use std::{cmp, mem};
 use std::{marker::PhantomData, ptr::NonNull};
 
@@ -28,6 +29,20 @@ impl<T> Drop for LinkedList<T> {
         let guard = DropGuard(self);
         while guard.0.pop_front_node().is_some() {}
         mem::forget(guard);
+    }
+}
+
+impl<T> Index<usize> for LinkedList<T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.iter().nth(index).unwrap()
+    }
+}
+
+impl<T> IndexMut<usize> for LinkedList<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        self.iter_mut().nth(index).unwrap()
     }
 }
 
@@ -169,6 +184,13 @@ impl<T> LinkedList<T> {
         if i > j {
             std::mem::swap(&mut i, &mut j);
         }
+    }
+
+    pub fn find(&self, val: Option<T>) -> Option<&T>
+    where
+        T: PartialEq,
+    {
+        self.iter().find(|&v| Some(v) == val.as_ref())
     }
 
     pub fn front(&self) -> Option<&T> {
@@ -424,6 +446,14 @@ impl<'a, T> CursorMut<'a, T> {
 
     pub fn current(&self) -> Option<&'a mut T> {
         unsafe { self.current.map(|cur| &mut (*cur.as_ptr()).val) }
+    }
+
+    pub fn front(&self) -> Option<&T> {
+        self.list.front()
+    }
+
+    pub fn back(&self) -> Option<&T> {
+        self.list.back()
     }
 
     pub fn peek_next(&mut self) -> Option<&'a mut T> {
