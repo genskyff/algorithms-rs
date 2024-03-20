@@ -182,15 +182,22 @@ impl<T> LinkedList<T> {
         }
 
         if i > j {
-            std::mem::swap(&mut i, &mut j);
+            mem::swap(&mut i, &mut j);
         }
     }
 
-    pub fn find(&self, val: Option<T>) -> Option<&T>
+    pub fn contains(&self, val: &T) -> bool
     where
         T: PartialEq,
     {
-        self.iter().find(|&v| Some(v) == val.as_ref())
+        self.iter().any(|v| v == val)
+    }
+
+    pub fn find(&self, val: &T) -> Option<&T>
+    where
+        T: PartialEq,
+    {
+        self.iter().find(|&v| v == val)
     }
 
     pub fn front(&self) -> Option<&T> {
@@ -199,10 +206,22 @@ impl<T> LinkedList<T> {
             .map(|node| unsafe { &(*node.as_ptr()).val })
     }
 
+    pub fn front_mut(&mut self) -> Option<&mut T> {
+        self.head
+            .as_mut()
+            .map(|node| unsafe { &mut (*node.as_ptr()).val })
+    }
+
     pub fn back(&self) -> Option<&T> {
         self.tail
             .as_ref()
             .map(|node| unsafe { &(*node.as_ptr()).val })
+    }
+
+    pub fn back_mut(&mut self) -> Option<&mut T> {
+        self.tail
+            .as_mut()
+            .map(|node| unsafe { &mut (*node.as_ptr()).val })
     }
 
     pub fn push_front(&mut self, val: T) {
@@ -452,8 +471,16 @@ impl<'a, T> CursorMut<'a, T> {
         self.list.front()
     }
 
+    pub fn front_mut(&mut self) -> Option<&mut T> {
+        self.list.front_mut()
+    }
+
     pub fn back(&self) -> Option<&T> {
         self.list.back()
+    }
+
+    pub fn back_mut(&mut self) -> Option<&mut T> {
+        self.list.back_mut()
     }
 
     pub fn peek_next(&mut self) -> Option<&'a mut T> {
