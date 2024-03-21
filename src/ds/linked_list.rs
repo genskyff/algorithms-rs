@@ -248,6 +248,27 @@ impl<T> LinkedList<T> {
         self.pop_back_node().map(|node| node.into_val())
     }
 
+    pub fn remove(&mut self, at: usize) -> Option<T> {
+        if at >= self.len() {
+            None
+        } else {
+            let offset = self.len() - at - 1;
+            if at < offset {
+                let mut cursor = self.cursor_front_mut();
+                for _ in 0..at {
+                    cursor.move_next();
+                }
+                cursor.remove_current()
+            } else {
+                let mut cursor = self.cursor_back_mut();
+                for _ in 0..offset {
+                    cursor.move_prev();
+                }
+                cursor.remove_current()
+            }
+        }
+    }
+
     pub fn iter(&self) -> Iter<'_, T> {
         Iter {
             head: self.head,
@@ -263,6 +284,38 @@ impl<T> LinkedList<T> {
             tail: self.tail,
             len: self.len,
             marker: PhantomData,
+        }
+    }
+
+    pub fn cursor_front(&self) -> Cursor<'_, T> {
+        Cursor {
+            index: 0,
+            current: self.head,
+            list: self,
+        }
+    }
+
+    pub fn cursor_front_mut(&mut self) -> CursorMut<'_, T> {
+        CursorMut {
+            index: 0,
+            current: self.head,
+            list: self,
+        }
+    }
+
+    pub fn cursor_back(&self) -> Cursor<'_, T> {
+        Cursor {
+            index: self.len().checked_sub(1).unwrap_or(0),
+            current: self.tail,
+            list: self,
+        }
+    }
+
+    pub fn cursor_back_mut(&mut self) -> CursorMut<'_, T> {
+        CursorMut {
+            index: self.len().checked_sub(1).unwrap_or(0),
+            current: self.tail,
+            list: self,
         }
     }
 }
@@ -538,6 +591,16 @@ impl<'a, T> CursorMut<'a, T> {
                 self.index = self.list.len() - 1;
             }
             self.list.pop_back()
+        }
+    }
+
+    pub fn remove_current(&mut self) -> Option<T> {
+        let unlinked_node = self.current?;
+        unsafe {
+            self.current = unlinked_node.as_ref().next;
+            self.list.unlink(unlinked_node);
+            let unlinked_node = Box::from_raw(unlinked_node.as_ptr());
+            Some(unlinked_node.val)
         }
     }
 }
