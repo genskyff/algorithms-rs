@@ -53,10 +53,7 @@ impl<T: Copy + Default> Default for SLinkedList<T> {
     }
 }
 
-impl<T> Display for SLinkedList<T>
-where
-    T: Debug,
-{
+impl<T: Debug> Display for SLinkedList<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut idx = self.head;
         write!(f, "[")?;
@@ -113,10 +110,7 @@ impl<T: Copy + Default> From<SLinkedList<T>> for Vec<T> {
     }
 }
 
-impl<T> PartialEq for SLinkedList<T>
-where
-    T: PartialEq,
-{
+impl<T: PartialEq> PartialEq for SLinkedList<T> {
     fn eq(&self, other: &Self) -> bool {
         if self.len != other.len {
             return false;

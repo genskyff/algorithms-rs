@@ -1,2 +1,3 @@
+mod linked_list;
 mod sqlist;
-mod static_link_list;
+mod static_linked_list;

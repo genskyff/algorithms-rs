@@ -20,10 +20,7 @@ impl<T: Copy + Default> Default for SqList<T> {
     }
 }
 
-impl<T> Display for SqList<T>
-where
-    T: Debug,
-{
+impl<T: Debug> Display for SqList<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", &self.data[0..self.len])
     }
@@ -40,10 +37,7 @@ impl<T: Copy + Default> From<&[T]> for SqList<T> {
     }
 }
 
-impl<T> PartialEq for SqList<T>
-where
-    T: PartialEq,
-{
+impl<T: PartialEq> PartialEq for SqList<T> {
     fn eq(&self, other: &Self) -> bool {
         if self.len != other.len {
             return false;

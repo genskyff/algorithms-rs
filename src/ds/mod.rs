@@ -2,7 +2,6 @@ const MAXLEN: usize = 100;
 pub use node::Node;
 
 mod node {
-    use std::collections::LinkedList;
     use std::ptr::NonNull;
 
     #[derive(Debug, Clone)]
