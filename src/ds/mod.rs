@@ -26,6 +26,10 @@ mod node {
     }
 }
 
+/// # HashMap
+pub mod hashmap;
+pub use hashmap::HashMap;
+
 /// # Linked List
 pub mod linked_list;
 pub use linked_list::LinkedList;
