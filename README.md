@@ -44,10 +44,10 @@ cargo doc --open
   - [ ] Counting sort
   - [ ] Radix sort
 - [ ] Data structures
-  - [ ] Linear lists
+  - [x] Linear lists
     - [x] Sequential list
     - [x] Static linked list
-    - [ ] Linked list
+    - [x] Linked list
   - [ ] Queue
     - [ ] Array queue
     - [ ] Linked queue
