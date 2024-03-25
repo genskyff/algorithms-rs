@@ -54,7 +54,7 @@ cargo doc --open
   - [ ] Stack
     - [ ] Array stack
     - [ ] Linked stack
-  - [ ] Hash table
+  - [x] Hash table
   - [ ] Tree
   - [ ] Heap
   - [ ] Graph
