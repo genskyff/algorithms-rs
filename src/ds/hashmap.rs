@@ -9,12 +9,21 @@ pub mod constant {
 
 use constant::*;
 use std::cmp::Ordering;
+use std::fmt::{self, Debug, Display};
 use std::hash::{DefaultHasher, Hash, Hasher};
+
+use crate::sort::bucket;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct Pair<K, V> {
     key: K,
     value: V,
+}
+
+impl<K: Hash + Debug, V: Debug> Display for Pair<K, V> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}: {:?}", self.key, self.value)
+    }
 }
 
 impl<K: Hash, V> From<(K, V)> for Pair<K, V> {
@@ -34,6 +43,27 @@ impl<K: Hash, V> Default for Bucket<K, V> {
     }
 }
 
+impl<K: Hash + Debug, V: Debug> Display for Bucket<K, V> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.pairs.len() {
+            0 => write!(f, ""),
+            1 => write!(f, "{}", self.pairs[0]),
+            _ => {
+                write!(f, "{{")?;
+                for (i, pair) in self.pairs.iter().enumerate() {
+                    write!(
+                        f,
+                        "{}{}",
+                        pair,
+                        if i == self.pairs.len() - 1 { "" } else { ", " }
+                    )?;
+                }
+                write!(f, "}}")
+            }
+        }
+    }
+}
+
 impl<K: Eq + Hash + Clone, V: Clone> From<&[(K, V)]> for Bucket<K, V> {
     fn from(pairs: &[(K, V)]) -> Self {
         let mut bucket = Self::default();
@@ -44,7 +74,7 @@ impl<K: Eq + Hash + Clone, V: Clone> From<&[(K, V)]> for Bucket<K, V> {
     }
 }
 
-impl<K: Eq + Hash, V> Bucket<K, V> {
+impl<K: Hash, V> Bucket<K, V> {
     fn len(&self) -> usize {
         self.pairs.len()
     }
@@ -57,7 +87,9 @@ impl<K: Eq + Hash, V> Bucket<K, V> {
         self.pairs.is_empty()
     }
 
-    fn push(&mut self, pair: Pair<K, V>) {
+    fn push(&mut self, pair: Pair<K, V>)
+    where K: Eq
+     {
         match self.pairs.iter_mut().find(|p| p.key == pair.key) {
             Some(p) => p.value = pair.value,
             None => self.pairs.push(pair),
@@ -74,6 +106,31 @@ impl<K: Hash, V> Default for HashMap<K, V> {
     fn default() -> Self {
         Self {
             buckets: Vec::with_capacity(INIT_CAP),
+        }
+    }
+}
+
+impl<K: Hash + Debug, V: Debug> Display for HashMap<K, V> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let last_idx = self
+            .buckets
+            .iter()
+            .enumerate()
+            .rev()
+            .filter(|(_, v)| !v.pairs.is_empty())
+            .map(|(i, _)| i)
+            .next();
+        match last_idx {
+            Some(last) => {
+                write!(f, "{{")?;
+                for (i, bucket) in self.buckets.iter().enumerate() {
+                    if !bucket.is_empty() {
+                        write!(f, "{}{}", bucket, if i == last { "" } else { ", " })?;
+                    }
+                }
+                write!(f, "}}")
+            }
+            None => write!(f, "{{}}"),
         }
     }
 }
@@ -124,8 +181,21 @@ impl<K: PartialOrd + Eq + Hash + Clone, V: PartialEq + Clone> PartialEq for Hash
     }
 }
 
-impl<K: Eq + Hash, V> HashMap<K, V> {
-    fn migrate(&mut self, new_cap: usize) {}
+impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
+    fn migrate(&mut self, new_cap: usize) {
+        let mut pairs = Vec::with_capacity(self.count());
+        for bucket in self.buckets.iter() {
+            for pair in bucket.pairs.iter() {
+                pairs.push(pair.clone());
+            }
+        }
+        self.clear();
+        self.buckets.reserve(new_cap);
+        for pair in pairs {
+            let idx = Self::idx(new_cap, &pair.key);
+            self.buckets[idx].push(Pair::from(pair));
+        }
+    }
 
     fn shrink(&mut self) {
         if self.cap() > SHINK_CAP && self.len() < (self.cap() as f64 * LOW_FACTOR) as usize {
@@ -149,7 +219,7 @@ impl<K: Eq + Hash, V> HashMap<K, V> {
     }
 }
 
-impl<K: Eq + Hash, V> HashMap<K, V> {
+impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -191,6 +261,7 @@ impl<K: Eq + Hash, V> HashMap<K, V> {
         for bucket in self.buckets.iter_mut() {
             bucket.clear()
         }
+        self.buckets.clear();
     }
 
     pub fn is_empty(&mut self) -> bool {
