@@ -44,6 +44,7 @@ cargo doc --open
   - [ ] Counting sort
   - [ ] Radix sort
 - [ ] Data structures
+- [ ] Vector
   - [x] Linear lists
     - [x] Sequential list
     - [x] Static linked list

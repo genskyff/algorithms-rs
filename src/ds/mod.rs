@@ -41,3 +41,7 @@ pub use sqlist::SqList;
 /// # Static linked list
 pub mod static_linked_list;
 pub use static_linked_list::SLinkedList;
+
+/// # Vector
+pub mod vector;
+pub use vector::Vector;
