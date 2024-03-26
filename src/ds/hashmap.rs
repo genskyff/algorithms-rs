@@ -12,8 +12,6 @@ use std::cmp::Ordering;
 use std::fmt::{self, Debug, Display};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use crate::sort::bucket;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct Pair<K, V> {
     key: K,

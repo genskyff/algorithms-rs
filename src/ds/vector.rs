@@ -1,8 +1,10 @@
 use std::alloc::{alloc, dealloc, handle_alloc_error, realloc, Layout};
+use std::fmt::{self, Debug, Display};
 use std::mem::size_of;
 use std::ops::{Deref, DerefMut};
 use std::ptr::{self, NonNull};
 
+#[derive(Debug)]
 struct RawVector<T> {
     ptr: NonNull<T>,
     cap: usize,
@@ -10,6 +12,15 @@ struct RawVector<T> {
 
 unsafe impl<T> Sync for RawVector<T> {}
 unsafe impl<T> Send for RawVector<T> {}
+
+impl<T> Default for RawVector<T> {
+    fn default() -> Self {
+        Self {
+            ptr: NonNull::dangling(),
+            cap: 0,
+        }
+    }
+}
 
 impl<T> Drop for RawVector<T> {
     fn drop(&mut self) {
@@ -23,12 +34,30 @@ impl<T> Drop for RawVector<T> {
 }
 
 impl<T> RawVector<T> {
-    pub fn new() -> Self {
+    fn new() -> Self {
         assert!(size_of::<T>() != 0, "ZST is not support");
         Self {
             ptr: NonNull::dangling(),
             cap: 0,
         }
+    }
+
+    fn with_cap(cap: usize) -> Self {
+        assert!(size_of::<T>() != 0, "ZST is not support");
+        let layout = if cap == 0 {
+            Layout::array::<T>(1).unwrap()
+        } else {
+            Layout::array::<T>(cap).unwrap()
+        };
+
+        assert!(layout.size() <= isize::MAX as usize, "Capacity too large");
+
+        let ptr = match NonNull::new(unsafe { alloc(layout) } as *mut T) {
+            Some(p) => p,
+            None => handle_alloc_error(layout),
+        };
+
+        Self { ptr, cap }
     }
 
     fn grow(&mut self) {
@@ -49,7 +78,7 @@ impl<T> RawVector<T> {
         } else {
             let old_layout = Layout::array::<T>(self.cap).unwrap();
             let old_ptr = self.ptr.as_ptr() as *mut u8;
-            unsafe { realloc(old_ptr, old_layout, new_cap) }
+            unsafe { realloc(old_ptr, old_layout, new_layout.size()) }
         };
 
         self.ptr = match NonNull::new(new_ptr as *mut T) {
@@ -60,9 +89,47 @@ impl<T> RawVector<T> {
     }
 }
 
+#[derive(Debug)]
 pub struct Vector<T> {
     buf: RawVector<T>,
     len: usize,
+}
+
+impl<T> Default for Vector<T> {
+    fn default() -> Self {
+        Self {
+            buf: Default::default(),
+            len: Default::default(),
+        }
+    }
+}
+
+impl<T: Debug> Display for Vector<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[")?;
+        for (i, e) in self.iter().enumerate() {
+            write!(f, "{:?}{}", e, if i == self.len - 1 { "" } else { ", " })?;
+        }
+        write!(f, "]")
+    }
+}
+
+impl<T, const N: usize> From<[T; N]> for Vector<T> {
+    fn from(value: [T; N]) -> Self {
+        Self::from_slice(&value)
+    }
+}
+
+impl<T> From<&[T]> for Vector<T> {
+    fn from(value: &[T]) -> Self {
+        Self::from_slice(value)
+    }
+}
+
+impl<T: PartialEq> PartialEq for Vector<T> {
+    fn eq(&self, other: &Self) -> bool {
+        &self[..] == &other[..]
+    }
 }
 
 impl<T> IntoIterator for Vector<T> {
@@ -107,9 +174,27 @@ impl<T> Drop for Vector<T> {
 }
 
 impl<T> Vector<T> {
+    fn from_slice(value: &[T]) -> Self {
+        let mut v = Vector::with_cap(value.len());
+        unsafe {
+            ptr::copy(value.as_ptr(), v.buf.ptr.as_ptr(), value.len());
+        }
+        v.len = value.len();
+        v
+    }
+}
+
+impl<T> Vector<T> {
     pub fn new() -> Self {
         Self {
             buf: RawVector::new(),
+            len: 0,
+        }
+    }
+
+    pub fn with_cap(cap: usize) -> Self {
+        Self {
+            buf: RawVector::with_cap(cap),
             len: 0,
         }
     }
@@ -124,6 +209,10 @@ impl<T> Vector<T> {
 
     pub fn cap(&self) -> usize {
         self.buf.cap
+    }
+
+    pub fn clear(&mut self) {
+        while let Some(_) = self.pop() {}
     }
 
     pub fn is_empty(&self) -> bool {
