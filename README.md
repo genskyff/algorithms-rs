@@ -9,7 +9,7 @@ This is a repository implemented in Rust for various fundamental algorithms and 
 
 ## Features
 - Only use stable Rust
-- Use Unsafe features only in certain data structures
+- Uses unsafe in only a few implementations
 - Includes integration tests
 - Includes documentation
 
