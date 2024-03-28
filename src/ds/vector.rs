@@ -1,5 +1,5 @@
 use std::alloc::{alloc, dealloc, handle_alloc_error, realloc, Layout};
-use std::fmt::{self, Debug, Display};
+use std::fmt::Display;
 use std::mem::size_of;
 use std::ops::{Deref, DerefMut};
 use std::ptr::{self, NonNull};
@@ -27,7 +27,7 @@ impl<T> Drop for RawVector<T> {
         if self.cap != 0 {
             let layout = Layout::array::<T>(self.cap).unwrap();
             unsafe {
-                dealloc(self.ptr.as_ptr() as *mut u8, layout);
+                dealloc(self.as_ptr() as *mut u8, layout);
             }
         }
     }
@@ -44,13 +44,13 @@ impl<T> RawVector<T> {
 
     fn with_cap(cap: usize) -> Self {
         assert!(size_of::<T>() != 0, "ZST is not support");
+
         let layout = if cap == 0 {
             Layout::array::<T>(1).unwrap()
         } else {
             Layout::array::<T>(cap).unwrap()
         };
-
-        assert!(layout.size() <= isize::MAX as usize, "Capacity too large");
+        assert!(layout.size() <= isize::MAX as usize, "capacity too large");
 
         let ptr = match NonNull::new(unsafe { alloc(layout) } as *mut T) {
             Some(p) => p,
@@ -58,6 +58,10 @@ impl<T> RawVector<T> {
         };
 
         Self { ptr, cap }
+    }
+
+    fn as_ptr(&self) -> *mut T {
+        self.ptr.as_ptr()
     }
 
     fn grow(&mut self) {
@@ -70,14 +74,14 @@ impl<T> RawVector<T> {
 
         assert!(
             new_layout.size() <= isize::MAX as usize,
-            "Allocation too large"
+            "allocation too large"
         );
 
         let new_ptr = if self.cap == 0 {
             unsafe { alloc(new_layout) }
         } else {
             let old_layout = Layout::array::<T>(self.cap).unwrap();
-            let old_ptr = self.ptr.as_ptr() as *mut u8;
+            let old_ptr = self.as_ptr() as *mut u8;
             unsafe { realloc(old_ptr, old_layout, new_layout.size()) }
         };
 
@@ -99,30 +103,20 @@ impl<T> Default for Vector<T> {
     fn default() -> Self {
         Self {
             buf: Default::default(),
-            len: Default::default(),
+            len: 0,
         }
-    }
-}
-
-impl<T: Debug> Display for Vector<T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[")?;
-        for (i, e) in self.iter().enumerate() {
-            write!(f, "{:?}{}", e, if i == self.len - 1 { "" } else { ", " })?;
-        }
-        write!(f, "]")
     }
 }
 
 impl<T, const N: usize> From<[T; N]> for Vector<T> {
-    fn from(value: [T; N]) -> Self {
-        Self::from_slice(&value)
+    fn from(arr: [T; N]) -> Self {
+        Self::from_slice(&arr)
     }
 }
 
 impl<T> From<&[T]> for Vector<T> {
-    fn from(value: &[T]) -> Self {
-        Self::from_slice(value)
+    fn from(s: &[T]) -> Self {
+        Self::from_slice(s)
     }
 }
 
@@ -137,19 +131,35 @@ impl<T> IntoIterator for Vector<T> {
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let len = self.len();
         let buf = unsafe { ptr::read(&self.buf) };
+        let len = self.len();
         std::mem::forget(self);
 
         IntoIter {
-            start: buf.ptr.as_ptr(),
+            start: buf.as_ptr(),
             end: if buf.cap == 0 {
-                buf.ptr.as_ptr()
+                buf.as_ptr()
             } else {
-                unsafe { buf.ptr.as_ptr().add(len) }
+                unsafe { buf.as_ptr().add(len) }
             },
-            buf,
+            _buf: buf,
         }
+    }
+}
+
+impl<T> Drop for Vector<T> {
+    fn drop(&mut self) {
+        while let Some(_) = self.pop() {}
+    }
+}
+
+impl<T: Display> Display for Vector<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[")?;
+        for (i, e) in self.iter().enumerate() {
+            write!(f, "{}{}", e, if i == self.len - 1 { "" } else { ", " })?;
+        }
+        write!(f, "]")
     }
 }
 
@@ -167,19 +177,17 @@ impl<T> DerefMut for Vector<T> {
     }
 }
 
-impl<T> Drop for Vector<T> {
-    fn drop(&mut self) {
-        while let Some(_) = self.pop() {}
-    }
-}
-
 impl<T> Vector<T> {
-    fn from_slice(value: &[T]) -> Self {
-        let mut v = Vector::with_cap(value.len());
+    fn ptr(&self) -> *mut T {
+        self.buf.as_ptr()
+    }
+
+    fn from_slice(s: &[T]) -> Self {
+        let mut v = Vector::with_cap(s.len());
         unsafe {
-            ptr::copy(value.as_ptr(), v.buf.ptr.as_ptr(), value.len());
+            ptr::copy(s.as_ptr(), v.buf.as_ptr(), s.len());
         }
-        v.len = value.len();
+        v.len = s.len();
         v
     }
 }
@@ -199,10 +207,6 @@ impl<T> Vector<T> {
         }
     }
 
-    pub fn ptr(&self) -> *mut T {
-        self.buf.ptr.as_ptr()
-    }
-
     pub fn len(&self) -> usize {
         self.len
     }
@@ -217,6 +221,18 @@ impl<T> Vector<T> {
 
     pub fn is_empty(&self) -> bool {
         self.len == 0
+    }
+
+    pub fn swap(&mut self, i: usize, j: usize) {
+        assert!(std::cmp::max(i, j) < self.len, "index out of bounds");
+        if i != j {
+            (self[i], self[j]) = unsafe {
+                (
+                    ptr::read(self.as_ptr().add(j)),
+                    ptr::read(self.as_ptr().add(i)),
+                )
+            };
+        }
     }
 
     pub fn push(&mut self, elem: T) {
@@ -256,8 +272,8 @@ impl<T> Vector<T> {
 
     pub fn remove(&mut self, at: usize) -> T {
         assert!(at < self.len, "index out of bounds");
+        self.len -= 1;
         unsafe {
-            self.len -= 1;
             let result = ptr::read(self.ptr().add(at));
             ptr::copy(self.ptr().add(at), self.ptr().add(at + 1), self.len - at);
             result
@@ -266,8 +282,7 @@ impl<T> Vector<T> {
 }
 
 pub struct IntoIter<T> {
-    #[allow(unused)]
-    buf: RawVector<T>,
+    _buf: RawVector<T>,
     start: *const T,
     end: *const T,
 }
@@ -288,7 +303,7 @@ impl<T> Iterator for IntoIter<T> {
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = (self.end as usize - self.start as usize) / std::mem::size_of::<T>();
+        let len = (self.end as usize - self.start as usize) / size_of::<T>();
         (len, Some(len))
     }
 }
