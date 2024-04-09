@@ -10,9 +10,6 @@ struct RawVector<T> {
     cap: usize,
 }
 
-unsafe impl<T> Sync for RawVector<T> {}
-unsafe impl<T> Send for RawVector<T> {}
-
 impl<T> Default for RawVector<T> {
     fn default() -> Self {
         Self {
