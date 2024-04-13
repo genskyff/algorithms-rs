@@ -96,6 +96,8 @@ pub struct Vector<T> {
     len: usize,
 }
 
+// trait impls
+
 impl<T> Default for Vector<T> {
     fn default() -> Self {
         Self {
@@ -173,6 +175,8 @@ impl<T> DerefMut for Vector<T> {
         unsafe { std::slice::from_raw_parts_mut(self.ptr(), self.len) }
     }
 }
+
+// impls
 
 impl<T> Vector<T> {
     fn ptr(&self) -> *mut T {
