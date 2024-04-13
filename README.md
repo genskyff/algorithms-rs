@@ -5,7 +5,7 @@
 </a>
 
 ## Overview
-This is a repository implemented in Rust for various fundamental algorithms and data structures, intended for learning and recording purposes. It is licensed under the GPLv3 and is designed to be modular, making it easy to import into other code.
+This is a repository implemented in Rust for various fundamental algorithms and data structures, intended for learning and recording purposes. It is licensed under the MIT and is designed to be modular, making it easy to import into other code.
 
 ## Features
 - Only use stable Rust
