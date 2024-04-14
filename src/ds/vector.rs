@@ -125,24 +125,15 @@ impl<T: PartialEq> PartialEq for Vector<T> {
     }
 }
 
-impl<T> IntoIterator for Vector<T> {
-    type Item = T;
-    type IntoIter = IntoIter<T>;
+impl<T: PartialEq, const N: usize> PartialEq<[T; N]> for Vector<T> {
+    fn eq(&self, other: &[T; N]) -> bool {
+        &self[..] == other
+    }
+}
 
-    fn into_iter(self) -> Self::IntoIter {
-        let buf = unsafe { ptr::read(&self.buf) };
-        let len = self.len();
-        std::mem::forget(self);
-
-        IntoIter {
-            start: buf.as_ptr(),
-            end: if buf.cap == 0 {
-                buf.as_ptr()
-            } else {
-                unsafe { buf.as_ptr().add(len) }
-            },
-            _buf: buf,
-        }
+impl<T: PartialEq> PartialEq<&[T]> for Vector<T> {
+    fn eq(&self, other: &&[T]) -> bool {
+        &self[..] == *other
     }
 }
 
@@ -176,7 +167,7 @@ impl<T> DerefMut for Vector<T> {
     }
 }
 
-// impls
+//
 
 impl<T> Vector<T> {
     fn ptr(&self) -> *mut T {
@@ -192,6 +183,8 @@ impl<T> Vector<T> {
         v
     }
 }
+
+// public impls
 
 impl<T> Vector<T> {
     pub fn new() -> Self {
@@ -282,10 +275,19 @@ impl<T> Vector<T> {
     }
 }
 
+// iterator impls
+
+#[derive(Debug)]
 pub struct IntoIter<T> {
     _buf: RawVector<T>,
     start: *const T,
     end: *const T,
+}
+
+impl<T> Drop for IntoIter<T> {
+    fn drop(&mut self) {
+        for _ in &mut *self {}
+    }
 }
 
 impl<T> Iterator for IntoIter<T> {
@@ -301,11 +303,6 @@ impl<T> Iterator for IntoIter<T> {
                 Some(result)
             }
         }
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = (self.end as usize - self.start as usize) / size_of::<T>();
-        (len, Some(len))
     }
 }
 
@@ -323,8 +320,23 @@ impl<T> DoubleEndedIterator for IntoIter<T> {
     }
 }
 
-impl<T> Drop for IntoIter<T> {
-    fn drop(&mut self) {
-        for _ in &mut *self {}
+impl<T> IntoIterator for Vector<T> {
+    type Item = T;
+    type IntoIter = IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let buf = unsafe { ptr::read(&self.buf) };
+        let len = self.len();
+        std::mem::forget(self);
+
+        IntoIter {
+            start: buf.as_ptr(),
+            end: if buf.cap == 0 {
+                buf.as_ptr()
+            } else {
+                unsafe { buf.as_ptr().add(len) }
+            },
+            _buf: buf,
+        }
     }
 }

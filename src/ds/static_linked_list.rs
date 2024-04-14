@@ -1,6 +1,6 @@
 use crate::ds::MAXLEN;
 use std::cmp;
-use std::fmt::{self, Debug, Display};
+use std::fmt::Display;
 use std::ops::{Index, IndexMut};
 
 #[derive(Debug, Clone, Copy)]
@@ -8,6 +8,16 @@ struct SNode<T> {
     data: T,
     prev: Option<usize>,
     next: Option<usize>,
+}
+
+impl<T: Copy + Default> Default for SNode<T> {
+    fn default() -> Self {
+        Self {
+            data: Default::default(),
+            prev: None,
+            next: None,
+        }
+    }
 }
 
 // node[0] is the head
@@ -22,16 +32,6 @@ pub struct SLinkedList<T> {
 }
 
 // trait impls
-
-impl<T: Copy + Default> Default for SNode<T> {
-    fn default() -> Self {
-        Self {
-            data: Default::default(),
-            prev: None,
-            next: None,
-        }
-    }
-}
 
 impl<T: Copy + Default> Default for SLinkedList<T> {
     fn default() -> Self {
@@ -53,12 +53,62 @@ impl<T: Copy + Default> Default for SLinkedList<T> {
     }
 }
 
-impl<T: Debug> Display for SLinkedList<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl<T: Copy + Default, const N: usize> From<[T; N]> for SLinkedList<T> {
+    fn from(arr: [T; N]) -> Self {
+        Self::from_slice(&arr)
+    }
+}
+
+impl<T: Copy + Default> From<&[T]> for SLinkedList<T> {
+    fn from(s: &[T]) -> Self {
+        Self::from_slice(s)
+    }
+}
+
+impl<T: Copy + Default> From<&SLinkedList<T>> for Vec<T> {
+    fn from(list: &SLinkedList<T>) -> Self {
+        let mut v = Vec::with_capacity(list.len);
+        let mut idx = list.head;
+
+        while let Some(i) = idx {
+            v.push(list.nodes[i].data);
+            idx = list.nodes[i].next;
+        }
+
+        v
+    }
+}
+
+impl<T: PartialEq> PartialEq for SLinkedList<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.len == other.len && self.iter().eq(other.iter())
+    }
+}
+
+impl<T: PartialEq, const N: usize> PartialEq<[T; N]> for SLinkedList<T> {
+    fn eq(&self, other: &[T; N]) -> bool {
+        self.len == N && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
+
+impl<T: PartialEq> PartialEq<&[T]> for SLinkedList<T> {
+    fn eq(&self, other: &&[T]) -> bool {
+        self.len == other.len() && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
+
+impl<T: PartialEq> PartialEq<Vec<T>> for SLinkedList<T> {
+    fn eq(&self, other: &Vec<T>) -> bool {
+        self.len == other.len() && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
+
+impl<T: Display> Display for SLinkedList<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let mut idx = self.head;
         write!(f, "[")?;
         while let Some(i) = idx {
-            write!(f, "{:?}", self.nodes[i].data)?;
+            write!(f, "{}", self.nodes[i].data)?;
             idx = self.nodes[i].next;
             if idx.is_some() {
                 write!(f, " <-> ")?;
@@ -68,8 +118,42 @@ impl<T: Debug> Display for SLinkedList<T> {
     }
 }
 
-impl<T: Copy + Default> From<&[T]> for SLinkedList<T> {
-    fn from(arr: &[T]) -> Self {
+impl<T> Index<usize> for SLinkedList<T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.iter().nth(index).unwrap()
+    }
+}
+
+impl<T> IndexMut<usize> for SLinkedList<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        self.iter_mut().nth(index).unwrap()
+    }
+}
+
+// private impls
+
+impl<T> SLinkedList<T> {
+    fn alloc(&mut self) -> Option<usize> {
+        match self.space {
+            Some(idx) => {
+                self.space = self.nodes[idx].next;
+                Some(idx)
+            }
+            None => None,
+        }
+    }
+
+    fn free(&mut self, idx: usize) {
+        self.nodes[idx].next = self.space;
+        self.space = Some(idx);
+    }
+
+    fn from_slice(arr: &[T]) -> Self
+    where
+        T: Copy + Default,
+    {
         let mut list = Self::new();
 
         for i in 0..cmp::min(arr.len(), MAXLEN) {
@@ -96,116 +180,49 @@ impl<T: Copy + Default> From<&[T]> for SLinkedList<T> {
     }
 }
 
-impl<T: Copy + Default> From<SLinkedList<T>> for Vec<T> {
-    fn from(list: SLinkedList<T>) -> Self {
-        let mut v = Vec::with_capacity(list.len);
-        let mut idx = list.head;
+// public impls
 
-        while let Some(i) = idx {
-            v.push(list.nodes[i].data);
-            idx = list.nodes[i].next;
-        }
-
-        v
-    }
-}
-
-impl<T: PartialEq> PartialEq for SLinkedList<T> {
-    fn eq(&self, other: &Self) -> bool {
-        if self.len != other.len {
-            return false;
-        }
-
-        let mut idx1 = self.head;
-        let mut idx2 = other.head;
-
-        while let (Some(i1), Some(i2)) = (idx1, idx2) {
-            if self.nodes[i1].data != other.nodes[i2].data {
-                return false;
-            }
-            idx1 = self.nodes[i1].next;
-            idx2 = other.nodes[i2].next;
-        }
-
-        true
-    }
-}
-
-impl<T: Copy + Default> IntoIterator for SLinkedList<T> {
-    type Item = T;
-    type IntoIter = std::vec::IntoIter<T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        Vec::from(self).into_iter()
-    }
-}
-
-impl<T> Index<usize> for SLinkedList<T> {
-    type Output = T;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        let mut idx = self.head;
-        let mut i = 0;
-
-        while let Some(j) = idx {
-            if i == index {
-                return &self.nodes[j].data;
-            }
-            idx = self.nodes[j].next;
-            i += 1;
-        }
-
-        panic!("Index out of bounds");
-    }
-}
-
-impl<T> IndexMut<usize> for SLinkedList<T> {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        let mut idx = self.head;
-        let mut i = 0;
-
-        while let Some(j) = idx {
-            if i == index {
-                return &mut self.nodes[j].data;
-            }
-            idx = self.nodes[j].next;
-            i += 1;
-        }
-
-        panic!("Index out of bounds");
-    }
-}
-
-// impls
-
-impl<T: Copy + Default> SLinkedList<T> {
-    fn alloc(&mut self) -> Option<usize> {
-        match self.space {
-            Some(idx) => {
-                self.space = self.nodes[idx].next;
-                Some(idx)
-            }
-            None => None,
-        }
-    }
-
-    fn free(&mut self, idx: usize) {
-        self.nodes[idx].next = self.space;
-        self.space = Some(idx);
-    }
-}
-
-impl<T: Copy + Default> SLinkedList<T> {
-    pub fn new() -> Self {
+impl<T> SLinkedList<T> {
+    pub fn new() -> Self
+    where
+        T: Copy + Default,
+    {
         Default::default()
     }
 
-    pub fn to_vec(&self) -> Vec<T> {
-        Vec::from(self.clone())
+    pub fn to_vec(&self) -> Vec<T>
+    where
+        T: Copy + Default,
+    {
+        Vec::from(self)
     }
 
     pub fn len(&self) -> usize {
         self.len
+    }
+
+    pub fn clear(&mut self) {
+        let mut idx = self.head;
+        while let Some(i) = idx {
+            idx = self.nodes[i].next;
+            self.free(i);
+        }
+
+        self.space = Some(0);
+        self.head = None;
+        self.tail = None;
+        self.len = 0;
+
+        for i in 0..MAXLEN {
+            self.nodes[i].next = Some(i + 1);
+            self.nodes[i].prev = None;
+        }
+
+        self.nodes[MAXLEN - 1].next = None;
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
     }
 
     pub fn swap(&mut self, mut i: usize, mut j: usize) {
@@ -301,115 +318,54 @@ impl<T: Copy + Default> SLinkedList<T> {
         }
     }
 
-    pub fn clear(&mut self) {
-        let mut idx = self.head;
-        while let Some(i) = idx {
-            idx = self.nodes[i].next;
-            self.free(i);
-        }
-
-        self.space = Some(0);
-        self.head = None;
-        self.tail = None;
-        self.len = 0;
-
-        for i in 0..MAXLEN {
-            self.nodes[i].next = Some(i + 1);
-            self.nodes[i].prev = None;
-        }
-
-        self.nodes[MAXLEN - 1].next = None;
+    pub fn front(&self) -> Option<&T> {
+        self.iter().next()
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.len == 0
+    pub fn back(&self) -> Option<&T> {
+        self.iter().last()
     }
 
-    pub fn get(&self, i: usize) -> Option<T> {
-        if i < self.len {
-            if i < (self.len + 1) / 2 {
-                let mut idx = self.head;
-                for _ in 0..i {
-                    idx = self.nodes[idx.unwrap()].next;
-                }
-                return Some(self.nodes[idx.unwrap()].data);
-            } else {
-                let mut idx = self.tail;
-                for _ in 0..(self.len - i - 1) {
-                    idx = self.nodes[idx.unwrap()].prev;
-                }
-                return Some(self.nodes[idx.unwrap()].data);
-            }
-        }
-
-        None
-    }
-
-    pub fn first(&self) -> Option<T> {
-        self.get(0)
-    }
-
-    pub fn last(&self) -> Option<T> {
-        if self.is_empty() {
-            None
-        } else {
-            self.get(self.len - 1)
-        }
-    }
-
-    pub fn set(&mut self, i: usize, e: T) -> bool {
-        if i < self.len {
-            if i < (self.len + 1) / 2 {
-                let mut idx = self.head;
-                for _ in 0..i {
-                    idx = self.nodes[idx.unwrap()].next;
-                }
-                self.nodes[idx.unwrap()].data = e;
-            } else {
-                let mut idx = self.tail;
-                for _ in 0..(self.len - i - 1) {
-                    idx = self.nodes[idx.unwrap()].prev;
-                }
-                self.nodes[idx.unwrap()].data = e;
-            }
-            true
-        } else {
-            false
-        }
-    }
-
-    pub fn find(&self, e: T) -> Option<usize>
+    pub fn contains(&self, elem: &T) -> bool
     where
         T: PartialEq,
     {
-        let mut idx = self.head;
-        let mut i = 0;
-        while let Some(j) = idx {
-            if self.nodes[j].data == e {
-                return Some(i);
-            }
-            idx = self.nodes[j].next;
-            i += 1;
-        }
-        None
+        self.iter().any(|v| v == elem)
     }
 
-    pub fn insert(&mut self, i: usize, e: T) -> bool {
-        if i > self.len {
+    pub fn find(&self, elem: &T) -> Option<usize>
+    where
+        T: PartialEq,
+    {
+        self.iter().position(|v| v == elem)
+    }
+
+    pub fn find_all(&self, elem: &T) -> Vec<usize>
+    where
+        T: PartialEq,
+    {
+        self.iter()
+            .enumerate()
+            .filter_map(|(i, v)| (v == elem).then(|| i))
+            .collect()
+    }
+
+    pub fn insert(&mut self, at: usize, elem: T) -> bool {
+        if at > self.len {
             return false;
         }
 
         if let Some(idx) = self.alloc() {
-            self.nodes[idx].data = e;
+            self.nodes[idx].data = elem;
 
-            if i == 0 {
+            if at == 0 {
                 self.nodes[idx].prev = None;
                 self.nodes[idx].next = self.head;
                 if self.head.is_some() {
                     self.nodes[self.head.unwrap()].prev = Some(idx);
                 }
                 self.head = Some(idx);
-            } else if i == self.len {
+            } else if at == self.len {
                 self.nodes[idx].prev = self.tail;
                 self.nodes[idx].next = None;
                 if self.tail.is_some() {
@@ -418,7 +374,7 @@ impl<T: Copy + Default> SLinkedList<T> {
                 self.tail = Some(idx);
             } else {
                 let mut cur = self.head.unwrap();
-                for _ in 0..i {
+                for _ in 0..at {
                     cur = self.nodes[cur].next.unwrap();
                 }
                 self.nodes[idx].prev = self.nodes[cur].prev;
@@ -436,31 +392,26 @@ impl<T: Copy + Default> SLinkedList<T> {
         }
     }
 
-    pub fn push_front(&mut self, e: T) -> bool {
-        self.insert(0, e)
-    }
-
-    pub fn push_back(&mut self, e: T) -> bool {
-        self.insert(self.len, e)
-    }
-
-    pub fn remove(&mut self, i: usize) -> Option<T> {
-        if i >= self.len {
+    pub fn remove(&mut self, at: usize) -> Option<T>
+    where
+        T: Copy,
+    {
+        if at >= self.len {
             return None;
         }
 
         let mut cur = self.head.unwrap();
-        for _ in 0..i {
+        for _ in 0..at {
             cur = self.nodes[cur].next.unwrap();
         }
 
         let e = self.nodes[cur].data;
-        if i == 0 {
+        if at == 0 {
             self.head = self.nodes[cur].next;
             if self.head.is_some() {
                 self.nodes[self.head.unwrap()].prev = None;
             }
-        } else if i == self.len - 1 {
+        } else if at == self.len - 1 {
             self.tail = self.nodes[cur].prev;
             if self.tail.is_some() {
                 self.nodes[self.tail.unwrap()].next = None;
@@ -479,15 +430,143 @@ impl<T: Copy + Default> SLinkedList<T> {
         Some(e)
     }
 
-    pub fn pop_front(&mut self) -> Option<T> {
+    pub fn push_front(&mut self, elem: T) -> bool {
+        self.insert(0, elem)
+    }
+
+    pub fn push_back(&mut self, elem: T) -> bool {
+        self.insert(self.len, elem)
+    }
+
+    pub fn pop_front(&mut self) -> Option<T>
+    where
+        T: Copy,
+    {
         self.remove(0)
     }
 
-    pub fn pop_back(&mut self) -> Option<T> {
-        if self.is_empty() {
-            None
-        } else {
-            self.remove(self.len - 1)
+    pub fn pop_back(&mut self) -> Option<T>
+    where
+        T: Copy,
+    {
+        self.remove(self.len.checked_sub(1).unwrap_or(0))
+    }
+
+    pub fn iter(&self) -> Iter<T> {
+        Iter {
+            head: self.head,
+            tail: self.tail,
+            list: self,
         }
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<T> {
+        IterMut {
+            head: self.head,
+            tail: self.tail,
+            list: self,
+        }
+    }
+}
+
+// iterator impls
+
+#[derive(Debug, Clone)]
+pub struct IntoIter<T> {
+    list: SLinkedList<T>,
+}
+
+impl<T: Copy> Iterator for IntoIter<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.list.pop_front()
+    }
+}
+
+impl<T: Copy> DoubleEndedIterator for IntoIter<T> {
+    fn next_back(&mut self) -> Option<T> {
+        self.list.pop_back()
+    }
+}
+
+impl<T: Copy> IntoIterator for SLinkedList<T> {
+    type Item = T;
+    type IntoIter = IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter { list: self }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Iter<'a, T: 'a> {
+    head: Option<usize>,
+    tail: Option<usize>,
+    list: &'a SLinkedList<T>,
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.head.take().map(|i| {
+            self.head = self.list.nodes[i].next;
+            &self.list.nodes[i].data
+        })
+    }
+}
+
+impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.tail.take().map(|i| {
+            self.tail = self.list.nodes[i].prev;
+            &self.list.nodes[i].data
+        })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a SLinkedList<T> {
+    type Item = &'a T;
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+#[derive(Debug)]
+pub struct IterMut<'a, T: 'a> {
+    head: Option<usize>,
+    tail: Option<usize>,
+    list: &'a mut SLinkedList<T>,
+}
+
+impl<'a, T> Iterator for IterMut<'a, T> {
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.head.take().map(|i| {
+            self.head = self.list.nodes[i].next;
+            unsafe { &mut (*self.list.nodes.as_mut_ptr().add(i)).data }
+        })
+    }
+}
+
+impl<'a, T> DoubleEndedIterator for IterMut<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.tail.take().map(|i| {
+            self.tail = self.list.nodes[i].prev;
+            unsafe { &mut (*self.list.nodes.as_mut_ptr().add(i)).data }
+        })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a mut SLinkedList<T> {
+    type Item = &'a mut T;
+    type IntoIter = IterMut<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
     }
 }

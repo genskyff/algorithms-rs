@@ -14,36 +14,18 @@ fn test_default() {
 
 #[test]
 fn test_from() {
-    let v1 = Vector::from(TEST_DATA);
-    let v2 = Vector::from(&TEST_DATA[..]);
-    assert_eq!(v1.len(), LEN);
-    assert_eq!(v2.len(), LEN);
-    assert_eq!(v1[..], TEST_DATA);
-    assert_eq!(v2[..], TEST_DATA);
+    let v = Vector::from(TEST_DATA);
+    assert_eq!(v.len(), LEN);
+    assert_eq!(v, TEST_DATA);
 }
 
 #[test]
 fn test_eq() {
     let v1 = Vector::from(TEST_DATA);
-    let mut v2 = Vector::from(TEST_DATA);
+    let v2 = Vector::from(TEST_DATA);
     assert_eq!(v1, v2);
-    v2.push(10);
-    assert_ne!(v1, v2);
-}
-
-#[test]
-fn test_iter() {
-    let mut v = Vector::from(TEST_DATA);
-    for (i, e) in v.iter().enumerate() {
-        assert_eq!(&TEST_DATA[i], e);
-    }
-    for (i, e) in v.iter_mut().enumerate() {
-        *e += 10;
-        assert_eq!(TEST_DATA[i] + 10, *e);
-    }
-    for (i, e) in v.into_iter().enumerate() {
-        assert_eq!(TEST_DATA[i] + 10, e);
-    }
+    assert_eq!(v1, TEST_DATA);
+    assert_ne!(v1, &TEST_DATA[1..]);
 }
 
 #[test]
@@ -52,6 +34,35 @@ fn test_display() {
     assert_eq!(format!("{}", v), "[0, 1, 2, 3, 4, 5]");
     v.clear();
     assert_eq!(format!("{}", v), "[]");
+}
+
+#[test]
+fn test_into_iter() {
+    let v = Vector::from(TEST_DATA);
+    let mut iter = v.into_iter();
+    for e in TEST_DATA.iter() {
+        assert_eq!(iter.next(), Some(*e));
+    }
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn test_iter() {
+    let v = Vector::from(TEST_DATA);
+    let mut iter = v.iter();
+    for e in TEST_DATA.iter() {
+        assert_eq!(iter.next(), Some(e));
+    }
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn test_iter_mut() {
+    let mut v = Vector::from(TEST_DATA);
+    for e in v.iter_mut() {
+        *e += 1;
+    }
+    assert_eq!(v, [1, 2, 3, 4, 5, 6]);
 }
 
 // test impls
@@ -75,7 +86,7 @@ fn test_clear() {
     let mut v = Vector::from(TEST_DATA);
     v.clear();
     assert_eq!(v.len(), 0);
-    assert_eq!(v[..], []);
+    assert_eq!(v, []);
 }
 
 #[test]
@@ -98,14 +109,14 @@ fn test_push() {
     let mut v = Vector::new();
     v.push(0);
     v.push(1);
-    assert_eq!(v[..], TEST_DATA[..2]);
+    assert_eq!(v, &TEST_DATA[..2]);
 }
 
 #[test]
 fn test_pop() {
     let mut v = Vector::from(TEST_DATA);
     assert_eq!(v.pop(), Some(TEST_DATA[LEN - 1]));
-    assert_eq!(v[..], TEST_DATA[..LEN - 1]);
+    assert_eq!(v, &TEST_DATA[..LEN - 1]);
     v.clear();
     assert_eq!(v.pop(), None);
 }
@@ -114,7 +125,7 @@ fn test_pop() {
 fn test_insert() {
     let mut v = Vector::from(TEST_DATA);
     v.insert(3, 10);
-    assert_eq!(v[..], [0, 1, 2, 10, 3, 4, 5]);
+    assert_eq!(v, [0, 1, 2, 10, 3, 4, 5]);
 }
 
 #[test]

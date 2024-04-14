@@ -1,7 +1,8 @@
 use algorithms_rs::ds::hashmap::constant::*;
 use algorithms_rs::ds::HashMap;
 
-const TEST_DATA: [(&str, i32); 6] = [("a", 0), ("b", 1), ("c", 2), ("d", 3), ("e", 4), ("f", 5)];
+const LEN: usize = 6;
+const TEST_DATA: [(&str, i32); LEN] = [("a", 0), ("b", 1), ("c", 2), ("d", 3), ("e", 4), ("f", 5)];
 
 // test trait impls
 
@@ -13,23 +14,20 @@ fn test_default() {
 }
 
 #[test]
-fn test_display() {
-    let mut map = HashMap::from(&TEST_DATA[..]);
-    assert_eq!(
-        format!("{}", map),
-        r#"{"b": 1, "d": 3, "f": 5, "a": 0, "c": 2, "e": 4}"#
-    );
-    map.clear();
-    assert_eq!(format!("{}", map), "{}");
-}
-
-#[test]
 fn test_from() {
     let map = HashMap::from(&TEST_DATA[..]);
     let data = [("c", 2), ("a", 0), ("e", 4), ("b", 1), ("d", 3), ("f", 5)];
     let map2 = HashMap::from(&data[..]);
     assert_eq!(map.len(), TEST_DATA.len());
     assert_eq!(map, map2);
+}
+
+#[test]
+fn test_display() {
+    let mut map = HashMap::from(&TEST_DATA[..]);
+    assert_eq!(format!("{}", map), "{b: 1, d: 3, f: 5, a: 0, c: 2, e: 4}");
+    map.clear();
+    assert_eq!(format!("{}", map), "{}");
 }
 
 // test impls

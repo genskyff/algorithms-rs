@@ -9,7 +9,7 @@ pub mod constant {
 
 use constant::*;
 use std::cmp::Ordering;
-use std::fmt::{self, Debug, Display};
+use std::fmt::{self, Display};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,15 +18,15 @@ struct Pair<K, V> {
     value: V,
 }
 
-impl<K: Hash + Debug, V: Debug> Display for Pair<K, V> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}: {:?}", self.key, self.value)
+impl<K, V> From<(K, V)> for Pair<K, V> {
+    fn from((key, value): (K, V)) -> Self {
+        Self { key, value }
     }
 }
 
-impl<K: Hash, V> From<(K, V)> for Pair<K, V> {
-    fn from((key, value): (K, V)) -> Self {
-        Self { key, value }
+impl<K: Display, V: Display> Display for Pair<K, V> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.key, self.value)
     }
 }
 
@@ -35,13 +35,23 @@ struct Bucket<K, V> {
     pairs: Vec<Pair<K, V>>,
 }
 
-impl<K: Hash, V> Default for Bucket<K, V> {
+impl<K, V> Default for Bucket<K, V> {
     fn default() -> Self {
         Self { pairs: vec![] }
     }
 }
 
-impl<K: Hash + Debug, V: Debug> Display for Bucket<K, V> {
+impl<K: Clone + Eq + Hash, V: Clone> From<&[(K, V)]> for Bucket<K, V> {
+    fn from(pairs: &[(K, V)]) -> Self {
+        let mut bucket = Self::default();
+        for pair in pairs {
+            bucket.push(Pair::from(pair.clone()));
+        }
+        bucket
+    }
+}
+
+impl<K: Display, V: Display> Display for Bucket<K, V> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.pairs.len() {
             0 => write!(f, ""),
@@ -62,17 +72,7 @@ impl<K: Hash + Debug, V: Debug> Display for Bucket<K, V> {
     }
 }
 
-impl<K: Eq + Hash + Clone, V: Clone> From<&[(K, V)]> for Bucket<K, V> {
-    fn from(pairs: &[(K, V)]) -> Self {
-        let mut bucket = Self::default();
-        for pair in pairs {
-            bucket.push(Pair::from(pair.clone()));
-        }
-        bucket
-    }
-}
-
-impl<K: Hash, V> Bucket<K, V> {
+impl<K, V> Bucket<K, V> {
     fn len(&self) -> usize {
         self.pairs.len()
     }
@@ -86,8 +86,9 @@ impl<K: Hash, V> Bucket<K, V> {
     }
 
     fn push(&mut self, pair: Pair<K, V>)
-    where K: Eq
-     {
+    where
+        K: PartialEq,
+    {
         match self.pairs.iter_mut().find(|p| p.key == pair.key) {
             Some(p) => p.value = pair.value,
             None => self.pairs.push(pair),
@@ -100,7 +101,7 @@ pub struct HashMap<K, V> {
     buckets: Vec<Bucket<K, V>>,
 }
 
-impl<K: Hash, V> Default for HashMap<K, V> {
+impl<K, V> Default for HashMap<K, V> {
     fn default() -> Self {
         Self {
             buckets: Vec::with_capacity(INIT_CAP),
@@ -108,7 +109,53 @@ impl<K: Hash, V> Default for HashMap<K, V> {
     }
 }
 
-impl<K: Hash + Debug, V: Debug> Display for HashMap<K, V> {
+impl<K: Clone + Eq + Hash, V: Clone> From<&[(K, V)]> for HashMap<K, V> {
+    fn from(pairs: &[(K, V)]) -> Self {
+        let cap = if pairs.len() < (INIT_CAP as f64 * LOAD_FACTOR) as usize {
+            INIT_CAP
+        } else {
+            (std::cmp::max(pairs.len(), INIT_CAP) + INIT_CAP - 1) / INIT_CAP * INIT_CAP
+        };
+        let mut map = Self::with_cap(cap);
+
+        for pair in pairs {
+            let idx = Self::idx(cap, &pair.0);
+            map.buckets[idx].push(Pair::from(pair.clone()));
+        }
+
+        map
+    }
+}
+
+impl<K: Clone + Eq + Hash, V: Clone> From<&HashMap<K, V>> for Vec<(K, V)> {
+    fn from(map: &HashMap<K, V>) -> Self {
+        let mut v = Vec::with_capacity(map.count());
+        for bucket in map.buckets.iter() {
+            for pair in bucket.pairs.iter() {
+                v.push((pair.key.clone(), pair.value.clone()))
+            }
+        }
+
+        v
+    }
+}
+
+impl<K: Clone + PartialOrd + Eq + Hash, V: Clone + PartialEq> PartialEq for HashMap<K, V> {
+    fn eq(&self, other: &Self) -> bool {
+        if self.len() != other.len() || self.count() != other.count() {
+            return false;
+        }
+
+        let mut v1 = self.to_vec();
+        let mut v2 = other.to_vec();
+        v1.sort_by(|k1, k2| k1.0.partial_cmp(&k2.0).map_or(Ordering::Equal, |r| r));
+        v2.sort_by(|k1, k2| k1.0.partial_cmp(&k2.0).map_or(Ordering::Equal, |r| r));
+
+        v1 == v2
+    }
+}
+
+impl<K: Display, V: Display> Display for HashMap<K, V> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let last_idx = self
             .buckets
@@ -133,53 +180,9 @@ impl<K: Hash + Debug, V: Debug> Display for HashMap<K, V> {
     }
 }
 
-impl<K: Eq + Hash + Clone, V: Clone> From<&[(K, V)]> for HashMap<K, V> {
-    fn from(pairs: &[(K, V)]) -> Self {
-        let cap = if pairs.len() < (INIT_CAP as f64 * LOAD_FACTOR) as usize {
-            INIT_CAP
-        } else {
-            (std::cmp::max(pairs.len(), INIT_CAP) + INIT_CAP - 1) / INIT_CAP * INIT_CAP
-        };
-        let mut map = Self::with_cap(cap);
+// private impls
 
-        for pair in pairs {
-            let idx = Self::idx(cap, &pair.0);
-            map.buckets[idx].push(Pair::from(pair.clone()));
-        }
-
-        map
-    }
-}
-
-impl<K: Eq + Hash + Clone, V: Clone> From<&HashMap<K, V>> for Vec<(K, V)> {
-    fn from(map: &HashMap<K, V>) -> Self {
-        let mut v = Vec::with_capacity(map.count());
-        for bucket in map.buckets.iter() {
-            for pair in bucket.pairs.iter() {
-                v.push((pair.key.clone(), pair.value.clone()))
-            }
-        }
-
-        v
-    }
-}
-
-impl<K: PartialOrd + Eq + Hash + Clone, V: PartialEq + Clone> PartialEq for HashMap<K, V> {
-    fn eq(&self, other: &Self) -> bool {
-        if self.len() != other.len() || self.count() != other.count() {
-            return false;
-        }
-
-        let mut v1 = self.to_vec();
-        let mut v2 = other.to_vec();
-        v1.sort_by(|k1, k2| k1.0.partial_cmp(&k2.0).map_or(Ordering::Equal, |r| r));
-        v2.sort_by(|k1, k2| k1.0.partial_cmp(&k2.0).map_or(Ordering::Equal, |r| r));
-
-        v1 == v2
-    }
-}
-
-impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
+impl<K: Clone + Eq + Hash, V: Clone> HashMap<K, V> {
     fn migrate(&mut self, new_cap: usize) {
         let mut pairs = Vec::with_capacity(self.count());
         for bucket in self.buckets.iter() {
@@ -216,6 +219,8 @@ impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
         hasher.finish() as usize % cap
     }
 }
+
+// public impls
 
 impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
     pub fn new() -> Self {
@@ -331,4 +336,11 @@ impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
             }
         }
     }
+}
+
+// iterator impls
+
+struct IntoIter<K, V> {
+    idx: usize,
+    map: HashMap<K, V>,
 }

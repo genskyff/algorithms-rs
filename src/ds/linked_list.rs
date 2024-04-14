@@ -1,5 +1,5 @@
 use crate::ds::Node;
-use std::fmt::{self, Debug, Display};
+use std::fmt::Display;
 use std::mem;
 use std::ops::{Index, IndexMut};
 use std::{marker::PhantomData, ptr::NonNull};
@@ -12,36 +12,23 @@ pub struct LinkedList<T> {
     marker: PhantomData<Box<Node<T>>>,
 }
 
+// trait impls
+
 impl<T> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T: Debug> Display for LinkedList<T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut cursor = self.cursor_front();
-        write!(f, "[")?;
-        while let Some(node) = cursor.current {
-            unsafe {
-                write!(f, "{:?}", node.as_ref().val)?;
-                cursor.move_next();
-                if cursor.current.is_some() {
-                    write!(f, " <-> ")?;
-                }
-            }
-        }
-        write!(f, "]")
+impl<T: Copy + Default, const N: usize> From<[T; N]> for LinkedList<T> {
+    fn from(arr: [T; N]) -> Self {
+        Self::from_slice(&arr)
     }
 }
 
 impl<T: Copy + Default> From<&[T]> for LinkedList<T> {
-    fn from(value: &[T]) -> Self {
-        let mut list = Self::new();
-        for &e in value {
-            list.push_back(e);
-        }
-        list
+    fn from(s: &[T]) -> Self {
+        Self::from_slice(s)
     }
 }
 
@@ -60,22 +47,25 @@ impl<T: Copy + Default> From<&LinkedList<T>> for Vec<T> {
 
 impl<T: PartialEq> PartialEq for LinkedList<T> {
     fn eq(&self, other: &Self) -> bool {
-        if self.len != other.len {
-            return false;
-        }
+        self.len == other.len && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
 
-        let mut cursor1 = self.cursor_front();
-        let mut cursor2 = other.cursor_front();
+impl<T: PartialEq, const N: usize> PartialEq<[T; N]> for LinkedList<T> {
+    fn eq(&self, other: &[T; N]) -> bool {
+        self.len == N && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
 
-        while let (Some(v1), Some(v2)) = (cursor1.current(), cursor2.current()) {
-            if v1 != v2 {
-                return false;
-            }
-            cursor1.move_next();
-            cursor2.move_next();
-        }
+impl<T: PartialEq> PartialEq<&[T]> for LinkedList<T> {
+    fn eq(&self, other: &&[T]) -> bool {
+        self.len == other.len() && self.iter().zip(other.iter()).all(|(a, b)| a == b)
+    }
+}
 
-        true
+impl<T: PartialEq> PartialEq<Vec<T>> for LinkedList<T> {
+    fn eq(&self, other: &Vec<T>) -> bool {
+        self.len == other.len() && self.iter().zip(other.iter()).all(|(a, b)| a == b)
     }
 }
 
@@ -94,30 +84,20 @@ impl<T> Drop for LinkedList<T> {
     }
 }
 
-impl<T> IntoIterator for LinkedList<T> {
-    type Item = T;
-    type IntoIter = IntoIter<T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        IntoIter { list: self }
-    }
-}
-
-impl<'a, T> IntoIterator for &'a LinkedList<T> {
-    type Item = &'a T;
-    type IntoIter = Iter<'a, T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter()
-    }
-}
-
-impl<'a, T> IntoIterator for &'a mut LinkedList<T> {
-    type Item = &'a mut T;
-    type IntoIter = IterMut<'a, T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter_mut()
+impl<T: Display> Display for LinkedList<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut cursor = self.cursor_front();
+        write!(f, "[")?;
+        while let Some(node) = cursor.current {
+            unsafe {
+                write!(f, "{}", node.as_ref().val)?;
+                cursor.move_next();
+                if cursor.current.is_some() {
+                    write!(f, " <-> ")?;
+                }
+            }
+        }
+        write!(f, "]")
     }
 }
 
@@ -134,6 +114,8 @@ impl<T> IndexMut<usize> for LinkedList<T> {
         self.iter_mut().nth(index).unwrap()
     }
 }
+
+// private impls
 
 impl<T> LinkedList<T> {
     unsafe fn unlink(&mut self, mut node: NonNull<Node<T>>) {
@@ -209,7 +191,20 @@ impl<T> LinkedList<T> {
             node
         })
     }
+
+    fn from_slice(slice: &[T]) -> Self
+    where
+        T: Copy,
+    {
+        let mut list = Self::new();
+        for &e in slice {
+            list.push_back(e);
+        }
+        list
+    }
 }
+
+// public impls
 
 impl<T> LinkedList<T> {
     pub fn new() -> Self {
@@ -245,11 +240,28 @@ impl<T> LinkedList<T> {
         self.head.is_none()
     }
 
-    pub fn contains(&self, val: &T) -> bool
+    pub fn contains(&self, elem: &T) -> bool
     where
         T: PartialEq,
     {
-        self.iter().any(|v| v == val)
+        self.iter().any(|v| v == elem)
+    }
+
+    pub fn find(&self, elem: &T) -> Option<usize>
+    where
+        T: PartialEq,
+    {
+        self.iter().position(|v| v == elem)
+    }
+
+    pub fn find_all(&self, elem: &T) -> Vec<usize>
+    where
+        T: PartialEq,
+    {
+        self.iter()
+            .enumerate()
+            .filter_map(|(i, v)| (v == elem).then(|| i))
+            .collect()
     }
 
     pub fn front(&self) -> Option<&T> {
@@ -398,6 +410,36 @@ impl<T> LinkedList<T> {
     }
 }
 
+// iterator impls
+
+#[derive(Debug, Clone)]
+pub struct IntoIter<T> {
+    list: LinkedList<T>,
+}
+
+impl<T> Iterator for IntoIter<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.list.pop_front()
+    }
+}
+
+impl<T> DoubleEndedIterator for IntoIter<T> {
+    fn next_back(&mut self) -> Option<T> {
+        self.list.pop_back()
+    }
+}
+
+impl<T> IntoIterator for LinkedList<T> {
+    type Item = T;
+    type IntoIter = IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter { list: self }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Iter<'a, T: 'a> {
     head: Option<NonNull<Node<T>>>,
@@ -447,6 +489,15 @@ impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
                 &node.val
             })
         }
+    }
+}
+
+impl<'a, T> IntoIterator for &'a LinkedList<T> {
+    type Item = &'a T;
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 
@@ -503,25 +554,16 @@ impl<'a, T> DoubleEndedIterator for IterMut<'a, T> {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct IntoIter<T> {
-    list: LinkedList<T>,
-}
+impl<'a, T> IntoIterator for &'a mut LinkedList<T> {
+    type Item = &'a mut T;
+    type IntoIter = IterMut<'a, T>;
 
-impl<T> Iterator for IntoIter<T> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.list.pop_front()
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
     }
 }
 
-impl<T> DoubleEndedIterator for IntoIter<T> {
-    #[inline]
-    fn next_back(&mut self) -> Option<T> {
-        self.list.pop_back()
-    }
-}
+// cursor impls
 
 #[derive(Debug, Clone)]
 pub struct Cursor<'a, T: 'a> {

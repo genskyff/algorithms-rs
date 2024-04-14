@@ -34,7 +34,25 @@ impl<T: Copy + Default> From<&[T]> for SqList<T> {
 
 impl<T: PartialEq> PartialEq for SqList<T> {
     fn eq(&self, other: &Self) -> bool {
-        &self.data[..] == &other.data[..]
+        &self[..] == &other[..]
+    }
+}
+
+impl<T: PartialEq, const N: usize> PartialEq<[T; N]> for SqList<T> {
+    fn eq(&self, other: &[T; N]) -> bool {
+        &self[..] == other
+    }
+}
+
+impl<T: PartialEq> PartialEq<&[T]> for SqList<T> {
+    fn eq(&self, other: &&[T]) -> bool {
+        &self[..] == *other
+    }
+}
+
+impl<T: PartialEq> PartialEq<Vec<T>> for SqList<T> {
+    fn eq(&self, other: &Vec<T>) -> bool {
+        &self[..] == other.as_slice()
     }
 }
 
@@ -62,10 +80,13 @@ impl<T> DerefMut for SqList<T> {
     }
 }
 
-// impls
+// private impls
 
-impl<T: Copy + Default> SqList<T> {
-    fn from_slice(slice: &[T]) -> Self {
+impl<T> SqList<T> {
+    fn from_slice(slice: &[T]) -> Self
+    where
+        T: Copy + Default,
+    {
         let mut list = Self::default();
         let len = cmp::min(slice.len(), MAXLEN);
         for i in 0..len {
@@ -75,6 +96,8 @@ impl<T: Copy + Default> SqList<T> {
         list
     }
 }
+
+// public impls
 
 impl<T> SqList<T> {
     pub fn new() -> Self
@@ -88,29 +111,28 @@ impl<T> SqList<T> {
         self.len = 0;
     }
 
-    pub fn find(&self, elem: T) -> Option<usize>
+    pub fn contains(&self, elem: &T) -> bool
     where
         T: PartialEq,
     {
-        for i in 0..self.len {
-            if self[i] == elem {
-                return Some(i);
-            }
-        }
-        None
+        self.iter().any(|v| v == elem)
     }
 
-    pub fn find_all(&self, elem: T) -> Vec<usize>
+    pub fn find(&self, elem: &T) -> Option<usize>
     where
         T: PartialEq,
     {
-        let mut indices = Vec::new();
-        for i in 0..self.len {
-            if self[i] == elem {
-                indices.push(i);
-            }
-        }
-        indices
+        self.iter().position(|v| v == elem)
+    }
+
+    pub fn find_all(&self, elem: &T) -> Vec<usize>
+    where
+        T: PartialEq,
+    {
+        self.iter()
+            .enumerate()
+            .filter_map(|(i, v)| (v == elem).then(|| i))
+            .collect()
     }
 
     pub fn insert(&mut self, at: usize, elem: T) -> bool {
