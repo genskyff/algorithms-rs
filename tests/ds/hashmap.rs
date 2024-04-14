@@ -2,7 +2,7 @@ use algorithms_rs::ds::hashmap::constant::*;
 use algorithms_rs::ds::HashMap;
 
 const LEN: usize = 6;
-const TEST_DATA: [(&str, i32); LEN] = [("a", 0), ("b", 1), ("c", 2), ("d", 3), ("e", 4), ("f", 5)];
+const TEST_DATA: [(&str, i32); LEN] = [("b", 1), ("d", 3), ("f", 5), ("a", 0), ("c", 2), ("e", 4)];
 
 // test trait impls
 
@@ -28,6 +28,17 @@ fn test_display() {
     assert_eq!(format!("{}", map), "{b: 1, d: 3, f: 5, a: 0, c: 2, e: 4}");
     map.clear();
     assert_eq!(format!("{}", map), "{}");
+}
+
+#[test]
+fn test_into_iter() {
+    let map = HashMap::from(&TEST_DATA[..]);
+    let mut iter = map.into_iter();
+    let mut data = TEST_DATA.to_vec();
+    for (k, v) in iter.by_ref().rev() {
+        assert_eq!((k, v), data.pop().unwrap());
+    }
+    assert_eq!(data.len(), 0);
 }
 
 // test impls

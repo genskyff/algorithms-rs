@@ -340,7 +340,43 @@ impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
 
 // iterator impls
 
-struct IntoIter<K, V> {
-    idx: usize,
-    map: HashMap<K, V>,
+pub struct IntoIter<K, V> {
+    cur: usize,
+    pairs: Vec<(K, V)>,
+}
+
+impl<K: Clone + Eq + Hash, V: Clone> Iterator for IntoIter<K, V> {
+    type Item = (K, V);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.cur < self.pairs.len() {
+            let r = Some(self.pairs[self.cur].clone());
+            self.cur += 1;
+            r
+        } else {
+            None
+        }
+    }
+}
+
+impl<K: Clone + Eq + Hash, V: Clone> DoubleEndedIterator for IntoIter<K, V> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.cur < self.pairs.len() {
+            let r = Some(self.pairs[self.pairs.len() - 1].clone());
+            self.pairs.pop();
+            r
+        } else {
+            None
+        }
+    }
+}
+
+impl<K: Clone + Eq + Hash, V: Clone> IntoIterator for HashMap<K, V> {
+    type Item = (K, V);
+    type IntoIter = IntoIter<K, V>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let pairs = self.to_vec();
+        IntoIter { cur: 0, pairs }
+    }
 }
