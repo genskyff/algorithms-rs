@@ -109,21 +109,15 @@ impl<K, V> Default for HashMap<K, V> {
     }
 }
 
+impl<K: Clone + Eq + Hash, V: Clone, const N: usize> From<[(K, V); N]> for HashMap<K, V> {
+    fn from(arr: [(K, V); N]) -> Self {
+        Self::from_slice(&arr)
+    }
+}
+
 impl<K: Clone + Eq + Hash, V: Clone> From<&[(K, V)]> for HashMap<K, V> {
-    fn from(pairs: &[(K, V)]) -> Self {
-        let cap = if pairs.len() < (INIT_CAP as f64 * LOAD_FACTOR) as usize {
-            INIT_CAP
-        } else {
-            (std::cmp::max(pairs.len(), INIT_CAP) + INIT_CAP - 1) / INIT_CAP * INIT_CAP
-        };
-        let mut map = Self::with_cap(cap);
-
-        for pair in pairs {
-            let idx = Self::idx(cap, &pair.0);
-            map.buckets[idx].push(Pair::from(pair.clone()));
-        }
-
-        map
+    fn from(s: &[(K, V)]) -> Self {
+        Self::from_slice(s)
     }
 }
 
@@ -217,6 +211,22 @@ impl<K: Clone + Eq + Hash, V: Clone> HashMap<K, V> {
         let mut hasher = DefaultHasher::new();
         key.hash(&mut hasher);
         hasher.finish() as usize % cap
+    }
+
+    fn from_slice(pairs: &[(K, V)]) -> Self {
+        let cap = if pairs.len() < (INIT_CAP as f64 * LOAD_FACTOR) as usize {
+            INIT_CAP
+        } else {
+            (std::cmp::max(pairs.len(), INIT_CAP) + INIT_CAP - 1) / INIT_CAP * INIT_CAP
+        };
+        let mut map = Self::with_cap(cap);
+
+        for pair in pairs {
+            let idx = Self::idx(cap, &pair.0);
+            map.buckets[idx].push(Pair::from(pair.clone()));
+        }
+
+        map
     }
 }
 
