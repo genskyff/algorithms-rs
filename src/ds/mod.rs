@@ -26,6 +26,14 @@ mod node {
     }
 }
 
+/// # Array Queue
+pub mod array_queue;
+pub use array_queue::ArrayQueue;
+
+/// # Array Stack
+pub mod array_stack;
+pub use array_stack::ArrayStack;
+
 /// # HashMap
 pub mod hashmap;
 pub use hashmap::HashMap;
@@ -33,6 +41,14 @@ pub use hashmap::HashMap;
 /// # Linked List
 pub mod linked_list;
 pub use linked_list::LinkedList;
+
+/// # Linked Queue
+pub mod linked_queue;
+pub use linked_queue::LinkedQueue;
+
+/// # Linked Stack
+pub mod linked_stack;
+pub use linked_stack::LinkedStack;
 
 /// # Sequential List
 pub mod sqlist;
