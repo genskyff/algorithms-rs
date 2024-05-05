@@ -49,12 +49,12 @@ cargo doc --open
     - [x] Sequential list
     - [x] Static linked list
     - [x] Linked list
-  - [ ] Queue
+  - [x] Queue
     - [x] Array queue
-    - [ ] Linked queue
-  - [ ] Stack
+    - [x] Linked queue
+  - [x] Stack
     - [x] Array stack
-    - [ ] Linked stack
+    - [x] Linked stack
   - [x] Hash table
   - [ ] Tree
   - [ ] Heap
