@@ -260,7 +260,7 @@ impl<T> LinkedList<T> {
     {
         self.iter()
             .enumerate()
-            .filter_map(|(i, v)| (v == elem).then(|| i))
+            .filter_map(|(i, v)| (v == elem).then_some(i))
             .collect()
     }
 
@@ -395,7 +395,7 @@ impl<T> LinkedList<T> {
 
     pub fn cursor_back(&self) -> Cursor<'_, T> {
         Cursor {
-            index: self.len().checked_sub(1).unwrap_or(0),
+            index: self.len().saturating_sub(1),
             current: self.tail,
             list: self,
         }
@@ -403,7 +403,7 @@ impl<T> LinkedList<T> {
 
     pub fn cursor_back_mut(&mut self) -> CursorMut<'_, T> {
         CursorMut {
-            index: self.len().checked_sub(1).unwrap_or(0),
+            index: self.len().saturating_sub(1),
             current: self.tail,
             list: self,
         }
@@ -595,7 +595,7 @@ impl<'a, T> Cursor<'a, T> {
         match self.current.take() {
             Some(cur) => unsafe {
                 self.current = cur.as_ref().prev;
-                self.index.checked_sub(1).unwrap_or(0);
+                self.index.saturating_sub(1);
             },
             None => {
                 self.current = self.list.tail;
@@ -667,7 +667,7 @@ impl<'a, T> CursorMut<'a, T> {
         match self.current.take() {
             Some(cur) => unsafe {
                 self.current = cur.as_ref().prev;
-                self.index.checked_sub(1).unwrap_or(0);
+                self.index.saturating_sub(1);
             },
             None => {
                 self.current = self.list.tail;

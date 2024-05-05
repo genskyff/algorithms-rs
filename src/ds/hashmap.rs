@@ -188,7 +188,7 @@ impl<K: Clone + Eq + Hash, V: Clone> HashMap<K, V> {
         self.buckets.reserve(new_cap);
         for pair in pairs {
             let idx = Self::idx(new_cap, &pair.key);
-            self.buckets[idx].push(Pair::from(pair));
+            self.buckets[idx].push(pair);
         }
     }
 
@@ -256,7 +256,7 @@ impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
     pub fn len(&self) -> usize {
         self.buckets
             .iter()
-            .filter(|bucket| bucket.len() != 0)
+            .filter(|bucket| !bucket.is_empty())
             .count()
     }
 

@@ -131,7 +131,7 @@ impl<T> SqList<T> {
     {
         self.iter()
             .enumerate()
-            .filter_map(|(i, v)| (v == elem).then(|| i))
+            .filter_map(|(i, v)| (v == elem).then_some(i))
             .collect()
     }
 
@@ -185,6 +185,6 @@ impl<T> SqList<T> {
     where
         T: Copy,
     {
-        self.remove(self.len.checked_sub(1).unwrap_or(0))
+        self.remove(self.len.saturating_sub(1))
     }
 }
