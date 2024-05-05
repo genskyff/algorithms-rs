@@ -2,6 +2,8 @@ mod array_queue;
 mod array_stack;
 mod hashmap;
 mod linked_list;
+mod linked_queue;
+mod linked_stack;
 mod sqlist;
 mod static_linked_list;
 mod vector;
