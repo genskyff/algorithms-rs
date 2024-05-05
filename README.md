@@ -44,16 +44,16 @@ cargo doc --open
   - [ ] Counting sort
   - [ ] Radix sort
 - [ ] Data structures
-- [ ] Vector
+  - [x] Vector
   - [x] Linear lists
     - [x] Sequential list
     - [x] Static linked list
     - [x] Linked list
   - [ ] Queue
-    - [ ] Array queue
+    - [x] Array queue
     - [ ] Linked queue
   - [ ] Stack
-    - [ ] Array stack
+    - [x] Array stack
     - [ ] Linked stack
   - [x] Hash table
   - [ ] Tree
