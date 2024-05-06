@@ -595,11 +595,11 @@ impl<'a, T> Cursor<'a, T> {
         match self.current.take() {
             Some(cur) => unsafe {
                 self.current = cur.as_ref().prev;
-                self.index.saturating_sub(1);
+                self.index = self.index.checked_sub(1).unwrap_or(self.list.len());
             },
             None => {
                 self.current = self.list.tail;
-                self.index.checked_div(1).unwrap_or(self.list.len());
+                self.index = self.list.len().checked_sub(1).unwrap_or(0);
             }
         }
     }
@@ -667,11 +667,11 @@ impl<'a, T> CursorMut<'a, T> {
         match self.current.take() {
             Some(cur) => unsafe {
                 self.current = cur.as_ref().prev;
-                self.index.saturating_sub(1);
+                self.index = self.index.checked_sub(1).unwrap_or(self.list.len());
             },
             None => {
                 self.current = self.list.tail;
-                self.index.checked_div(1).unwrap_or(self.list.len());
+                self.index = self.list.len().checked_sub(1).unwrap_or(0);
             }
         }
     }
