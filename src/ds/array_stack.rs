@@ -34,7 +34,7 @@ impl<T: Copy + Default> From<&[T]> for ArrayStack<T> {
 
 impl<T: PartialEq> PartialEq for ArrayStack<T> {
     fn eq(&self, other: &Self) -> bool {
-        &self[..] == &other[..]
+        self[..] == other[..]
     }
 }
 
@@ -89,9 +89,7 @@ impl<T> ArrayStack<T> {
     {
         let mut stack = Self::default();
         let len = cmp::min(slice.len(), MAXLEN);
-        for i in 0..len {
-            stack.data[i] = slice[i];
-        }
+        stack.data[..len].copy_from_slice(&slice[..len]);
         stack.len = len;
         stack
     }

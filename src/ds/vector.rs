@@ -121,7 +121,7 @@ impl<T> From<&[T]> for Vector<T> {
 
 impl<T: PartialEq> PartialEq for Vector<T> {
     fn eq(&self, other: &Self) -> bool {
-        &self[..] == &other[..]
+        self[..] == other[..]
     }
 }
 
@@ -139,7 +139,7 @@ impl<T: PartialEq> PartialEq<&[T]> for Vector<T> {
 
 impl<T> Drop for Vector<T> {
     fn drop(&mut self) {
-        while let Some(_) = self.pop() {}
+        while self.pop().is_some() {}
     }
 }
 
@@ -210,7 +210,7 @@ impl<T> Vector<T> {
     }
 
     pub fn clear(&mut self) {
-        while let Some(_) = self.pop() {}
+        while self.pop().is_some() {}
     }
 
     pub fn is_empty(&self) -> bool {

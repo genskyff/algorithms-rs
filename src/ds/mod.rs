@@ -20,7 +20,7 @@ mod node {
             }
         }
 
-        pub fn into_val(self: Box<Self>) -> T {
+        pub fn into_val(self) -> T {
             self.val
         }
     }

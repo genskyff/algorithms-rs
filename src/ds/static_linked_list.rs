@@ -37,9 +37,9 @@ impl<T: Copy + Default> Default for SLinkedList<T> {
     fn default() -> Self {
         let mut nodes = [SNode::default(); MAXLEN];
 
-        for i in 0..MAXLEN {
-            nodes[i].next = Some(i + 1);
-            nodes[i].prev = None;
+        for (i, node) in nodes.iter_mut().enumerate().take(MAXLEN) {
+            node.next = Some(i + 1);
+            node.prev = None;
         }
         nodes[MAXLEN - 1].next = None;
 
@@ -156,9 +156,9 @@ impl<T> SLinkedList<T> {
     {
         let mut list = Self::new();
 
-        for i in 0..cmp::min(arr.len(), MAXLEN) {
+        for &v in arr.iter().take(cmp::min(arr.len(), MAXLEN)) {
             if let Some(idx) = list.alloc() {
-                list.nodes[idx].data = arr[i];
+                list.nodes[idx].data = v;
                 list.nodes[idx].next = None;
 
                 if list.head.is_none() {

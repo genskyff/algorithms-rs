@@ -599,7 +599,7 @@ impl<'a, T> Cursor<'a, T> {
             },
             None => {
                 self.current = self.list.tail;
-                self.index = self.list.len().checked_sub(1).unwrap_or(0);
+                self.index = self.list.len().saturating_sub(1);
             }
         }
     }
@@ -671,7 +671,7 @@ impl<'a, T> CursorMut<'a, T> {
             },
             None => {
                 self.current = self.list.tail;
-                self.index = self.list.len().checked_sub(1).unwrap_or(0);
+                self.index = self.list.len().saturating_sub(1);
             }
         }
     }

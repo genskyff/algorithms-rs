@@ -34,7 +34,7 @@ impl<T: Copy + Default> From<&[T]> for SqList<T> {
 
 impl<T: PartialEq> PartialEq for SqList<T> {
     fn eq(&self, other: &Self) -> bool {
-        &self[..] == &other[..]
+        self[..] == other[..]
     }
 }
 
@@ -89,9 +89,7 @@ impl<T> SqList<T> {
     {
         let mut list = Self::default();
         let len = cmp::min(slice.len(), MAXLEN);
-        for i in 0..len {
-            list.data[i] = slice[i];
-        }
+        list.data[..len].copy_from_slice(&slice[..len]);
         list.len = len;
         list
     }

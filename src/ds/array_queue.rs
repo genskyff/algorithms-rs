@@ -103,9 +103,7 @@ impl<T> ArrayQueue<T> {
     {
         let mut queue = Self::default();
         let len = cmp::min(slice.len(), MAXLEN);
-        for i in 0..len {
-            queue.data[i] = slice[i];
-        }
+        queue.data[..len].copy_from_slice(&slice[..len]);
         queue.len = len;
         queue
     }

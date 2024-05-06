@@ -277,7 +277,7 @@ impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
         self.buckets.clear();
     }
 
-    pub fn is_empty(&mut self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.buckets.iter().all(|bucket| bucket.is_empty())
     }
 
@@ -332,7 +332,7 @@ impl<K: Eq + Hash + Clone, V: Clone> HashMap<K, V> {
         } else {
             let mut idx_p = None;
             for (i, p) in bucket.pairs.iter().enumerate() {
-                if &p.key == &key {
+                if p.key == key {
                     idx_p = Some(i);
                     break;
                 }

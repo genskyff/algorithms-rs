@@ -93,7 +93,5 @@ fn merge<T: Ord + Clone + Debug>(
         t_pos += 1;
     }
 
-    for i in low..t_pos {
-        arr[i] = tmp[i].clone();
-    }
+    arr[low..t_pos].clone_from_slice(&tmp[low..t_pos]);
 }
