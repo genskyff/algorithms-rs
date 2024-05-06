@@ -1,5 +1,4 @@
 //! - **Category** ---- Non-comparison-based
-//! - **Data structure** ---- Array
 //! - **Stability** ---- Depends on the internal sorting algorithm
 //! - **In-place** ---- No
 //! - **Space** complexity ---- O(n+k)

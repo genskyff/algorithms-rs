@@ -1,5 +1,4 @@
 //! - **Category** ---- Comparison-based
-//! - **Data structure** ---- Array
 //! - **Stability** ---- Yes
 //! - **In-place** ---- Yes
 //! - **Space** complexity ---- O(1)

@@ -1,5 +1,4 @@
 //! - **Category** ---- Non-comparison-based
-//! - **Data structure** ---- Array
 //! - **Stability** ---- Yes
 //! - **In-place** ---- No
 //! - **Space** complexity ---- O(n+k)

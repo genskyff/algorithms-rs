@@ -1,5 +1,4 @@
 //! - **Category** ---- Comparison-based
-//! - **Data structure** ---- Array
 //! - **Stability** ---- No
 //! - **In-place** ---- Yes
 //! - **Space** complexity ---- O(logn) ~ O(n)
