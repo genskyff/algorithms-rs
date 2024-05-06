@@ -59,5 +59,8 @@ cargo doc --open
   - [ ] Tree
   - [ ] Heap
   - [ ] Graph
+- [ ] String
+  - [x] Brute force
+  - [ ] KMP
 - [ ] Searching
 - ...
