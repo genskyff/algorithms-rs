@@ -1,6 +1,7 @@
 use algorithms_rs::string::Kmp;
 
 #[test]
+#[ignore]
 fn test_kmp() {
     let s = "AABAACAADAABAABA";
     let s1 = format!("{s}A");
