@@ -1,4 +1,4 @@
-//! Len of **main string** is `n` and **pattern string** is `m`
+//! Length of **main string** is `n` and **pattern string** is `m`
 //! - **Best** time complexity ---- O(n)
 //! - **Worst** time complexity ---- O(nm)
 //! - **Average** time complexity ---- O(n)
