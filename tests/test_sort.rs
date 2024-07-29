@@ -1,13 +1,9 @@
 mod data;
 mod sort;
 use data::TestData;
+use std::sync::LazyLock;
 
-#[macro_use]
-extern crate lazy_static;
-
-lazy_static! {
-    static ref DATA: TestData = TestData::new();
-}
+static DATA: LazyLock<TestData> = LazyLock::new(TestData::new);
 
 #[test]
 #[ignore]
