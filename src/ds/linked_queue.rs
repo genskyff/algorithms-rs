@@ -96,31 +96,35 @@ impl<T: Display> Display for LinkedQueue<T> {
 
 impl<T> LinkedQueue<T> {
     unsafe fn push_front_node(&mut self, node: NonNull<Node<T>>) {
-        (*node.as_ptr()).prev = None;
-        (*node.as_ptr()).next = self.front;
-        let node = Some(node);
+        unsafe {
+            (*node.as_ptr()).prev = None;
+            (*node.as_ptr()).next = self.front;
+            let node = Some(node);
 
-        match self.front {
-            Some(front) => (*front.as_ptr()).prev = node,
-            None => self.rear = node,
+            match self.front {
+                Some(front) => (*front.as_ptr()).prev = node,
+                None => self.rear = node,
+            }
+
+            self.front = node;
+            self.len += 1;
         }
-
-        self.front = node;
-        self.len += 1;
     }
 
     unsafe fn push_back_node(&mut self, node: NonNull<Node<T>>) {
-        (*node.as_ptr()).prev = self.rear;
-        (*node.as_ptr()).next = None;
-        let node = Some(node);
+        unsafe {
+            (*node.as_ptr()).prev = self.rear;
+            (*node.as_ptr()).next = None;
+            let node = Some(node);
 
-        match self.rear {
-            Some(rear) => (*rear.as_ptr()).next = node,
-            None => self.front = node,
+            match self.rear {
+                Some(rear) => (*rear.as_ptr()).next = node,
+                None => self.front = node,
+            }
+
+            self.rear = node;
+            self.len += 1;
         }
-
-        self.rear = node;
-        self.len += 1;
     }
 
     fn pop_front_node(&mut self) -> Option<Box<Node<T>>> {

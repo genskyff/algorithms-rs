@@ -1,4 +1,4 @@
-use std::alloc::{alloc, dealloc, handle_alloc_error, realloc, Layout};
+use std::alloc::{Layout, alloc, dealloc, handle_alloc_error, realloc};
 use std::fmt::Display;
 use std::mem::size_of;
 use std::ops::{Deref, DerefMut};

@@ -1,5 +1,5 @@
-use algorithms_rs::ds::hashmap::constant::*;
 use algorithms_rs::ds::HashMap;
+use algorithms_rs::ds::hashmap::constant::*;
 
 const LEN: usize = 6;
 const TEST_DATA: [(&str, i32); LEN] = [("b", 1), ("d", 3), ("f", 5), ("a", 0), ("c", 2), ("e", 4)];

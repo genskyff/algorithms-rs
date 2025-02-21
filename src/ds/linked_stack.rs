@@ -96,17 +96,19 @@ impl<T: Display> Display for LinkedStack<T> {
 
 impl<T> LinkedStack<T> {
     unsafe fn push_back_node(&mut self, node: NonNull<Node<T>>) {
-        (*node.as_ptr()).prev = self.top;
-        (*node.as_ptr()).next = None;
-        let node = Some(node);
+        unsafe {
+            (*node.as_ptr()).prev = self.top;
+            (*node.as_ptr()).next = None;
+            let node = Some(node);
 
-        match self.top {
-            Some(top) => (*top.as_ptr()).next = node,
-            None => self.bottom = node,
+            match self.top {
+                Some(top) => (*top.as_ptr()).next = node,
+                None => self.bottom = node,
+            }
+
+            self.top = node;
+            self.len += 1;
         }
-
-        self.top = node;
-        self.len += 1;
     }
 
     fn pop_front_node(&mut self) -> Option<Box<Node<T>>> {

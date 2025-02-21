@@ -119,47 +119,53 @@ impl<T> IndexMut<usize> for LinkedList<T> {
 
 impl<T> LinkedList<T> {
     unsafe fn unlink(&mut self, mut node: NonNull<Node<T>>) {
-        let node = node.as_mut();
+        unsafe {
+            let node = node.as_mut();
 
-        match node.prev {
-            Some(prev) => (*prev.as_ptr()).next = node.next,
-            None => self.head = node.next,
+            match node.prev {
+                Some(prev) => (*prev.as_ptr()).next = node.next,
+                None => self.head = node.next,
+            }
+
+            match node.next {
+                Some(next) => (*next.as_ptr()).prev = node.prev,
+                None => self.tail = node.prev,
+            }
+
+            self.len -= 1;
         }
-
-        match node.next {
-            Some(next) => (*next.as_ptr()).prev = node.prev,
-            None => self.tail = node.prev,
-        }
-
-        self.len -= 1;
     }
 
     unsafe fn push_front_node(&mut self, node: NonNull<Node<T>>) {
-        (*node.as_ptr()).prev = None;
-        (*node.as_ptr()).next = self.head;
-        let node = Some(node);
+        unsafe {
+            (*node.as_ptr()).prev = None;
+            (*node.as_ptr()).next = self.head;
+            let node = Some(node);
 
-        match self.head {
-            Some(head) => (*head.as_ptr()).prev = node,
-            None => self.tail = node,
+            match self.head {
+                Some(head) => (*head.as_ptr()).prev = node,
+                None => self.tail = node,
+            }
+
+            self.head = node;
+            self.len += 1;
         }
-
-        self.head = node;
-        self.len += 1;
     }
 
     unsafe fn push_back_node(&mut self, node: NonNull<Node<T>>) {
-        (*node.as_ptr()).prev = self.tail;
-        (*node.as_ptr()).next = None;
-        let node = Some(node);
+        unsafe {
+            (*node.as_ptr()).prev = self.tail;
+            (*node.as_ptr()).next = None;
+            let node = Some(node);
 
-        match self.tail {
-            Some(tail) => (*tail.as_ptr()).next = node,
-            None => self.head = node,
+            match self.tail {
+                Some(tail) => (*tail.as_ptr()).next = node,
+                None => self.head = node,
+            }
+
+            self.tail = node;
+            self.len += 1;
         }
-
-        self.tail = node;
-        self.len += 1;
     }
 
     fn pop_front_node(&mut self) -> Option<Box<Node<T>>> {

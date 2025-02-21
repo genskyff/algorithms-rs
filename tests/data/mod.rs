@@ -1,5 +1,5 @@
 use rand::seq::SliceRandom;
-use rand::{distr::Uniform, Rng};
+use rand::{Rng, distr::Uniform};
 
 #[derive(Debug, Clone)]
 pub struct TestData {
