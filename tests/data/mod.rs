@@ -1,5 +1,5 @@
 use rand::seq::SliceRandom;
-use rand::{distributions::Uniform, Rng};
+use rand::{distr::Uniform, Rng};
 
 #[derive(Debug, Clone)]
 pub struct TestData {
@@ -13,8 +13,8 @@ impl TestData {
     const RANGE: i32 = 1000;
 
     pub fn new() -> Self {
-        let mut rng = rand::thread_rng();
-        let value_range = Uniform::new_inclusive(-Self::RANGE, Self::RANGE);
+        let mut rng = rand::rng();
+        let value_range = Uniform::new_inclusive(-Self::RANGE, Self::RANGE).unwrap();
 
         let mut unsorted = vec![];
         let mut sorted = vec![];
@@ -44,7 +44,7 @@ impl TestData {
 
         for _ in 0..Self::COUNT {
             let mut vec = vec![];
-            let len = rng.gen_range(3..Self::LEN);
+            let len = rng.random_range(3..Self::LEN);
 
             let duplicate_value = rng.sample(&value_range);
             vec.push(duplicate_value);
@@ -59,9 +59,9 @@ impl TestData {
             }
 
             if vec.iter().all(|&x| x >= 0) {
-                vec.push(rng.gen_range(-Self::RANGE..0));
+                vec.push(rng.random_range(-Self::RANGE..0));
             } else {
-                vec.push(rng.gen_range(1..=Self::RANGE));
+                vec.push(rng.random_range(1..=Self::RANGE));
             }
 
             vec.shuffle(&mut rng);
